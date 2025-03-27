@@ -14,6 +14,20 @@ Kubeflow Notebooks offer a robust environment for developing and deploying machi
 
 - **`notebook_snippets/`**: This directory houses individual Python scripts and Jupyter notebooks, each focusing on a specific functionality or task within the Kubeflow ecosystem.
 
+### Snippet Categories
+
+#### Benchmarking snippets
+
+- **Logs**
+  - Upload Log
+
+- **Configuration**
+  - Create New Configuration
+
+- **Evaluation**
+  - Trigger Evaluation
+  - Get Evaluation Results
+
 ## Getting Started
 
 To integrate these snippets into your Kubeflow environment:
