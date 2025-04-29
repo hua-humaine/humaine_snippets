@@ -1,0 +1,6 @@
+FROM kubeflownotebookswg/jupyter-scipy:v1.9.2
+RUN wget https://raw.githubusercontent.com/hua-humaine/humaine_snippets/refs/heads/main/ns/requirements.txt
+RUN pip install kfp --upgrade
+RUN pip install -r requirements.txt
+
+ 
