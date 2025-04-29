@@ -1,0 +1,17 @@
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.2.2
+tensorflow==2.17.1
+keras==3.5.0
+ltn==2.1
+outlines==0.2.1
+outlines[openai]==0.2.1
+transformers==4.47.0
+streamlit==1.44.0
+matplotlib==3.7.5
+shap==0.47.1
+streamlit-shap==1.0.2
+langchain==0.3.12
+sentence-transformers==3.3.1
+tf_keras==2.17.0
+joblib==1.4.2
