@@ -1,6 +1,16 @@
 FROM kubeflownotebookswg/jupyter-scipy:v1.9.2
+WORKDIR /home/jovyan
+RUN pwd
 RUN wget https://raw.githubusercontent.com/hua-humaine/humaine_snippets/refs/heads/main/ns/requirements.txt
 RUN pip install kfp --upgrade
 RUN pip install -r requirements.txt
-
- 
+USER root
+RUN mkdir /app
+RUN chown jovyan /app
+USER jovyan
+WORKDIR /app
+COPY ./app.py /app/app.py
+RUN ls
+RUN pwd
+EXPOSE 8888
+ENTRYPOINT ["streamlit", "run", "/app/app.py", "--server.port=8888"]
