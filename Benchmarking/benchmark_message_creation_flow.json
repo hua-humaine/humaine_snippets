@@ -1,0 +1,57 @@
+[
+    {
+        "id": "cbc26cda78f6a783",
+        "type": "inject",
+        "z": "4f217e23deeebc90",
+        "name": "BENCHMARKING TEMPLATE",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"session_id\":\"dss_img_recog-e5392b4b-0932-4e9c-a1ea-2a2e342b84a9\",\"user_id\":\"dss_img_recog-d7d0614f-c964-434b-b81d-fbed40daf844\",\"ai_model_version\":\"2.0.0\",\"app_version\":\"1.0.0\",\"start_time\":\"2024-06-22T21:46:29Z\",\"end_time\":\"2024-07-22T07:46:52Z\",\"interaction_data\":[{\"image_id\":\"img-8274735c-652b-428e-8446-e3e016c26679\",\"presentation_time\":\"2025-04-08T06:12:33.691445\",\"result\":\"true_negative\",\"ai_detection_results\":\"true_negative\",\"outcome\":\"incorrect\",\"performance_at_t\":0.794562706529144,\"performance_at_t_1\":0.6931220045719952,\"time_interval\":4645,\"response_time\":104.23293151567172,\"performance_improvement\":0.027104773111610823,\"time_spent\":2133,\"reached_target\":false,\"resources_used\":51,\"total_resources\":100,\"time_without_ai\":547,\"time_with_ai\":177,\"correction_effectiveness\":0.7932252208494405,\"correction_time\":79,\"errors_before\":5,\"errors_after\":2,\"pre_retention_performance\":0.7487288321451568,\"post_retention_performance\":0.853677365987549,\"pre_feedback_performance\":0.679955021005444,\"post_feedback_performance\":0.8004463003007924,\"pre_adaptation_performance\":0.620386928155566,\"post_adaptation_performance\":0.7672707766009791,\"pre_correction_performance\":0.7397263374849203,\"post_correction_performance\":0.8607282111115669,\"learning_gain\":0.02123736271376508,\"learning_time\":819,\"objective_status\":\"not achieved\",\"human_decision\":\"reject\",\"ai_suggestion\":\"reject\",\"ai_assisted\":true,\"decision_outcome\":\"successful\",\"resolution_time\":94,\"effort_without_ai\":13,\"effort_with_ai\":7,\"confidence_level\":0.30029541909188706,\"trust_rating\":6,\"trust_scale_maximum\":10,\"safety_incidents\":2,\"uptime\":4703,\"total_time\":6000,\"performance_adversarial\":0.783859114685352,\"performance_normal\":0.899850278537306,\"performance_across_domains\":0.7081882617007862,\"baseline_performance\":0.701667008885401}],\"infrastructure_data\":{\"cpu\":\"0.3\",\"memory\":\"234\"},\"model_data\":[{\"retraining_time\":\"2024-07-27T12:40:10.691502\",\"initial_metrics\":{\"detection_accuracy\":0.7893060173132472,\"false_positive_rate\":0.08314651052928203,\"false_negative_rate\":0.13646632696899683},\"post_retraining_metrics\":{\"detection_accuracy\":0.8390374771800702,\"false_positive_rate\":0.08163044342886192,\"false_negative_rate\":0.09478784808872005},\"retraining_details\":{\"time_taken_seconds\":2667,\"data_used\":\"feedback and corrections from the review\",\"ai_model_version_after_retraining\":\"1.5.4\"}}]}]",
+        "payloadType": "json",
+        "x": 310,
+        "y": 340,
+        "wires": [
+            [
+                "73662f183c97ad3f"
+            ]
+        ]
+    },
+    {
+        "id": "cd7d730dd8610d8e",
+        "type": "comment",
+        "z": "4f217e23deeebc90",
+        "name": "Example JSON Template",
+        "info": "//JSON template for benchmarking\n//In principle the template can be whatever the application wants. It will be submitted to\n//the benchmarking API as part of the benchmark configuration. However some key fields or top level categories\n//are suggested and in some cases are mandatory for the various metrics to keep track of the progress.\n//The main structure includes\n//  user\n  //  -> performs a task (in a session)\n  //      -> uses an application\n  //          -> the application may have a model or not (e.g. HMI interface)\n  //      -> uses a model directly without an application (Model as a Service)\n\n[\n{   \"session_id\": \"dss_img_recog-e5392b4b-0932-4e9c-a1ea-2a2e342b84a9\", //mandatory to keep track of specific interaction for a given task\n    \"user_id\": \"dss_img_recog-d7d0614f-c964-434b-b81d-fbed40daf844\", //mandatory to keep track of specific user\n    \"ai_model_version\": \"2.0.0\", //optional if one needs to keep track of model evolution\n    \"app_version\": \"1.0.0\", //optional if one wants to apply the user friendliness of the app. If no UI, it can be ommitted\n    \"start_time\": \"2024-06-22T21:46:29Z\", //mandatory to calculate the task completion\n    \"end_time\": \"2024-07-22T07:46:52Z\",   //mandatory to calculate the task completion\n    \"interaction_data\": [{ //mandatory at this top level, inner fields can be any key-value pair\n      \"image_id\": \"img-8274735c-652b-428e-8446-e3e016c26679\",\n      \"presentation_time\": \"2025-04-08T06:12:33.691445\",\n      \"result\": \"true_negative\",\n      \"ai_detection_results\": \"true_negative\",\n      \"outcome\": \"incorrect\",\n      \"performance_at_t\": 0.794562706529144,\n      \"performance_at_t_1\": 0.6931220045719952,\n      \"time_interval\": 4645,\n      \"response_time\": 104.23293151567172,\n      \"performance_improvement\": 0.027104773111610823,\n      \"time_spent\": 2133,\n      \"reached_target\": false,\n      \"resources_used\": 51,\n      \"total_resources\": 100,\n      \"time_without_ai\": 547,\n      \"time_with_ai\": 177,\n      \"correction_effectiveness\": 0.7932252208494405,\n      \"correction_time\": 79,\n      \"errors_before\": 5,\n      \"errors_after\": 2,\n      \"pre_retention_performance\": 0.7487288321451568,\n      \"post_retention_performance\": 0.853677365987549,\n      \"pre_feedback_performance\": 0.679955021005444,\n      \"post_feedback_performance\": 0.8004463003007924,\n      \"pre_adaptation_performance\": 0.620386928155566,\n      \"post_adaptation_performance\": 0.7672707766009791,\n      \"pre_correction_performance\": 0.7397263374849203,\n      \"post_correction_performance\": 0.8607282111115669,\n      \"learning_gain\": 0.02123736271376508,\n      \"learning_time\": 819,\n      \"objective_status\": \"not achieved\",\n      \"human_decision\": \"reject\",\n      \"ai_suggestion\": \"reject\",\n      \"ai_assisted\": true,\n      \"decision_outcome\": \"successful\",\n      \"resolution_time\": 94,\n      \"effort_without_ai\": 13,\n      \"effort_with_ai\": 7,\n      \"confidence_level\": 0.30029541909188706,\n      \"trust_rating\": 6,\n      \"trust_scale_maximum\": 10,\n      \"safety_incidents\": 2,\n      \"uptime\": 4703,\n      \"total_time\": 6000,\n      \"performance_adversarial\": 0.783859114685352,\n      \"performance_normal\": 0.899850278537306,\n      \"performance_across_domains\": 0.7081882617007862,\n      \"baseline_performance\": 0.701667008885401\n    }],\n    \"infrastructure_data\": {//mandatory at this top level, inner fields can be any key-value pair or empty if not measured\n      \"cpu\":0.3,\n      \"memory\":234\n    }\n    \"model_metrics\": [ //optional at this top level because we may have applications (e.g. UIs) without models, inner fields can be any key-value pair\n      {\n        \"retraining_time\": \"2024-07-27T12:40:10.691502\",\n        \"initial_metrics\": {\n          \"detection_accuracy\": 0.7893060173132472,\n          \"false_positive_rate\": 0.08314651052928203,\n          \"false_negative_rate\": 0.13646632696899683\n        },\n        \"post_retraining_metrics\": {\n          \"detection_accuracy\": 0.8390374771800702,\n          \"false_positive_rate\": 0.08163044342886192,\n          \"false_negative_rate\": 0.09478784808872005\n        },\n        \"retraining_details\": {\n          \"time_taken_seconds\": 2667,\n          \"data_used\": \"feedback and corrections from the review\",\n          \"ai_model_version_after_retraining\": \"1.5.4\"\n        }\n      }\n    ]\n  }\n]\n",
+        "x": 490,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "73662f183c97ad3f",
+        "type": "debug",
+        "z": "4f217e23deeebc90",
+        "name": "debug 39",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 340,
+        "wires": []
+    }
+]
