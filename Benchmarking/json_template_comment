@@ -16,7 +16,7 @@
     "app_version": "1.0.0", //optional if one wants to apply the user friendliness of the app. If no UI, it can be ommitted
     "start_time": "2024-06-22T21:46:29Z", //mandatory to calculate the task completion
     "end_time": "2024-07-22T07:46:52Z",   //mandatory to calculate the task completion
-    "interaction_data": { //mandatory at this top level, inner fields can be any key-value pair
+    "interaction_data": [{ //mandatory at this top level, inner fields can be any key-value pair
       "image_id": "img-8274735c-652b-428e-8446-e3e016c26679",
       "presentation_time": "2025-04-08T06:12:33.691445",
       "result": "true_negative",
@@ -65,9 +65,10 @@
       "performance_normal": 0.899850278537306,
       "performance_across_domains": 0.7081882617007862,
       "baseline_performance": 0.701667008885401
-    },
+    }],
     "infrastructure_data": {//mandatory at this top level, inner fields can be any key-value pair or empty if not measured
-
+      "cpu":0.3,
+      "memory":234
     }
     "model_metrics": [ //optional at this top level because we may have applications (e.g. UIs) without models, inner fields can be any key-value pair
       {
