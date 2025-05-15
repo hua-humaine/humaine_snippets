@@ -1,1 +1,3010 @@
-
+[
+    {
+        "id": "e96f8b671b5f9a61",
+        "type": "tab",
+        "label": "Simple Service",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "957658b138a6d868",
+        "type": "tab",
+        "label": "Neurosymbolic Recipe",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6049dc5d721055aa",
+        "type": "tab",
+        "label": "Feedback Triggering",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5d2d32acc5591747",
+        "type": "tab",
+        "label": "FeedbackAggregator",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d0f30bc118fd474b",
+        "type": "tab",
+        "label": "Retraining Triggering",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9c05e48cc9829adb",
+        "type": "tab",
+        "label": "Notification Webhook",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7c7059814366565b",
+        "type": "tab",
+        "label": "Federation Discovery Service",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "906076393d9542b2",
+        "type": "subflow",
+        "name": "Edge ETL Service to HTTP out",
+        "info": "This subflow handles the pushing of data to an HTTP out endpoint. It accepts JSON input (object or array) in the msg.payload, which is considered the data to be pushed.\n\nThe target POST endpoint can be configured in the node UI, as well as the number of retries before temporarily giving up on pushing. If that limit is reached, the data are stored in a local sqlite db, from which they are retrieved periodically (period set in the CRON JOB node of the subflow) and retried.\n\nCredentials for the HTTP out node need to be set in the \"pushout\" node.\n\nIf more than one instances of the subflow need to be deployed on a server (e.g. for pushing different data points to different endpoints), suitable modifications are needed since they would reuse the same db. So a different filename for a db should be used in each case. ",
+        "category": "PHYSICS",
+        "in": [
+            {
+                "x": 260,
+                "y": 420,
+                "wires": [
+                    {
+                        "id": "b2179ac409d6bf0f"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [
+            {
+                "name": "retrylimit",
+                "type": "num",
+                "value": "5"
+            },
+            {
+                "name": "targetUrl",
+                "type": "str",
+                "value": "http://10.100.59.183:1881/pushData"
+            }
+        ],
+        "meta": {},
+        "color": "#C7E9C0"
+    },
+    {
+        "id": "1a12bb05ee871e3e",
+        "type": "subflow",
+        "name": "aerOS Async API Connector",
+        "info": "",
+        "category": "aerOS Connectors",
+        "in": [],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#3FADB5"
+    },
+    {
+        "id": "62a8e98efcfbf0c5",
+        "type": "subflow",
+        "name": "aerOS Data Fabric Connector",
+        "info": "",
+        "category": "aerOS Connectors",
+        "in": [],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#FFAAAA",
+        "icon": "node-red/db.svg"
+    },
+    {
+        "id": "ecc08510d6d8a5ae",
+        "type": "subflow",
+        "name": "aerOS Auth Connector",
+        "info": "",
+        "category": "aerOS Connectors",
+        "in": [],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#D8BFD8",
+        "icon": "font-awesome/fa-user-secret"
+    },
+    {
+        "id": "22feb8bd3d5373bd",
+        "type": "subflow",
+        "name": "Subflow 1",
+        "info": "",
+        "in": [],
+        "out": []
+    },
+    {
+        "id": "022af38fea8a4558",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "ee95c4c29f5ef08c",
+        "type": "tls-config",
+        "z": "906076393d9542b2",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "8a0706320fa877e8",
+        "type": "amqp-broker",
+        "name": "humaine in",
+        "host": "10.100.59.183",
+        "port": "5672",
+        "vhost": "humaine",
+        "tls": false,
+        "credsFromSettings": false
+    },
+    {
+        "id": "2f1e96eb92bb0e38",
+        "type": "sqlitedb",
+        "db": "/data/lost_data.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "ad6a15d695780781",
+        "type": "minio-config",
+        "name": "MinIO Instance",
+        "host": "10.100.59.208",
+        "port": "9003",
+        "useSsl": false
+    },
+    {
+        "id": "9070819b81e63623",
+        "type": "comment",
+        "z": "906076393d9542b2",
+        "name": "INPUT PHASE- Value in msg.payload",
+        "info": "This is specific to a given UC, and can be tailored to the way information is retrieved (i.e. IoT protocol). Node-RED has an abundance of relevant nodes and supported protocols that can be installed on demand through the \"Manage Palette\" option in the top right menu.",
+        "x": 370,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "79b86fc9ea03ebef",
+        "type": "comment",
+        "z": "906076393d9542b2",
+        "name": "EXAMPLE HTTP OUTPUT PHASE",
+        "info": "UC specific, depends on the outgoing system to which the data will be persisted. Node-RED has an abundance of relevant nodes, including database client nodes, cloud systems nodes, messaging system nodes etc that can be installed on demand through the \"Manage Palette\" option in the top right menu..",
+        "x": 1200,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "b3c059d63fbc22ed",
+        "type": "catch",
+        "z": "906076393d9542b2",
+        "name": "CATCHABLE ERROR",
+        "scope": [
+            "150e410b10193947"
+        ],
+        "uncaught": false,
+        "x": 600,
+        "y": 680,
+        "wires": [
+            [
+                "3adde18d089bb01c"
+            ]
+        ]
+    },
+    {
+        "id": "0b1148f8c5de31a5",
+        "type": "delay",
+        "z": "906076393d9542b2",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "2",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1280,
+        "y": 640,
+        "wires": [
+            [
+                "1487b3bcf5479ead"
+            ]
+        ]
+    },
+    {
+        "id": "3adde18d089bb01c",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "retry+1 & restore contents",
+        "func": "msg.thisretry=msg.thisretry+1;\nmsg.payload=msg.originalpayload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 680,
+        "wires": [
+            [
+                "10a3e967af1bf5d5",
+                "1d706e16bbb158f4"
+            ]
+        ]
+    },
+    {
+        "id": "10a3e967af1bf5d5",
+        "type": "switch",
+        "z": "906076393d9542b2",
+        "name": "Retry condition",
+        "property": "thisretry",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "retrylimit",
+                "vt": "env"
+            },
+            {
+                "t": "gte",
+                "v": "retrylimit",
+                "vt": "env"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1100,
+        "y": 680,
+        "wires": [
+            [
+                "0b1148f8c5de31a5"
+            ],
+            [
+                "55a4313698d81331"
+            ]
+        ]
+    },
+    {
+        "id": "55a4313698d81331",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "insert to Data Loss DB",
+        "func": "\n\nif (msg.olddata) {\n    return [msg,null];\n} else {\n    msg.topic='INSERT INTO lost_data (timestamp, payload) values(\\\"'+msg.timestamp+'\\\",json_quote(\\''+msg.originalpayload+'\\'))';\n    //msg.topic='INSERT INTO lost_data (timestamp, payload) values(',${msg.timestamp},${msg.originalpayload});\n    //msg.topic = `INSERT INTO lost_data (timestamp, payload) VALUES (${msg.timestamp}, ${JSON.stringify(msg.originalpayload)});`\n    \n    //original: msg.topic='INSERT INTO lost_data (timestamp, payload) values(\\\"'+msg.timestamp+'\\\",\\\"'+msg.originalpayload+'\\\")';\n    return [null,msg];\n}\n//we could include another point in the table indicating the format of the data eg. JSON, XML etc that could be used as\n//arguments in further processing flows in other areas or in transformation from string to format\n//maybe this is needed in any case in this normal operation as well\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1320,
+        "y": 720,
+        "wires": [
+            [
+                "40b24d90c2f3d8ff"
+            ],
+            [
+                "96d0655bde3648ac"
+            ]
+        ]
+    },
+    {
+        "id": "40b24d90c2f3d8ff",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "ALREADY IN",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1550,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "c2ce991733bf9dd0",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "Keep contents/retry def",
+        "func": "msg.thisretry=0;\n\nif (msg.olddata){\n    msg.timestamp=msg.payload.timestamp;\n    msg.originalpayload=msg.payload.payload;\n    msg.payload=msg.originalpayload;\n} else{\n    msg.timestamp=Date.now();\n    msg.originalpayload=msg.payload;\n}\n\nmsg.url=env.get('targetUrl');\n//msg.url='http://10.100.59.183:1881/pushData2'; //dummy fail\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 540,
+        "wires": [
+            [
+                "1487b3bcf5479ead",
+                "e72d30206221babf"
+            ]
+        ]
+    },
+    {
+        "id": "e65602605fa6eca1",
+        "type": "comment",
+        "z": "906076393d9542b2",
+        "name": "POINTS OF ATTENTION",
+        "info": "The retry field nees to be created as different with comparison to msg.retry, since the http node creates such a msg field in each request. Therefore the pre-existing field for retries in this flow will be overwritten by the http node.\n\nFurthermore, the original contents are in the msg.payload field of the incoming message at the beginning of the flow. In the http request node, the msg.payload contents are replaced by the response of the call, hence we need to ensure that we keep the contents of the initial input message that we need to store. These are moved in the \"Keep contents\" function in the msg.originalpayload field.\n\nOne final point of attention is that some nodes, like the http request node, do not throw a nodejs error event when the call fails, but instead the error is included in the msg. Therefore the catch node is not able to detect the failed call. For these nodes, the extra switch node of the http request node group can be used as an example of how  to detect per case the error condition. An extra step is the direct link between the switch node and the \"retry+1\" node, which is not needed in a typical catch case of a node that throws an nodejs error event on failure.\nMore details on error handling can be found here:\nhttps://nodered.org/docs/user-guide/handling-error\n\nAt the moment, deletion from the DB is based on msg.payload and msg.timestamp comparison, which implies that inside the payload there should be a unique identifier. However, typically this is the case in IoT related sensing, whereas the existence of timestamps of collection can also serve as a distinguishing factor between records with similar other fields.",
+        "x": 830,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "51fc5b20a065efab",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "Delete from DB",
+        "func": "msg.payload=msg.originalpayload;\n\n//msg.topic='delete from lost_data where payload=\\''+msg.payload+'\\' and timestamp='+msg.timestamp;\nmsg.topic='delete from lost_data where timestamp='+msg.timestamp;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1540,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0edab0b1878659e3",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "DROP TABLE",
+        "func": "\nmsg.topic='drop table lost_data';\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8599633aa42b556f",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "TEST",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payloadType": "str",
+        "x": 350,
+        "y": 1260,
+        "wires": [
+            [
+                "0edab0b1878659e3"
+            ]
+        ]
+    },
+    {
+        "id": "90f54b11a6a36c1e",
+        "type": "http in",
+        "z": "906076393d9542b2",
+        "name": "",
+        "url": "/pushData2",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 640,
+        "y": 1120,
+        "wires": [
+            [
+                "15890f2b67539144",
+                "86799a5927841ee5",
+                "3417e97479b9ceeb"
+            ]
+        ]
+    },
+    {
+        "id": "3417e97479b9ceeb",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "RECEIVED CONTENTS",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "15890f2b67539144",
+        "type": "http response",
+        "z": "906076393d9542b2",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 870,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "f17efed9a33810a8",
+        "type": "comment",
+        "z": "906076393d9542b2",
+        "name": "DUMMY TEST SERVICE",
+        "info": "",
+        "x": 650,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "ab03aac9d7087ea9",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "TEST",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payloadType": "str",
+        "x": 350,
+        "y": 1180,
+        "wires": [
+            [
+                "5032719a4615b1f9"
+            ]
+        ]
+    },
+    {
+        "id": "5032719a4615b1f9",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "SEE ALL ENTRIES",
+        "func": "\nmsg.topic='select * from lost_data';\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 1180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1de63f5e4c78da81",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "1487b3bcf5479ead",
+        "type": "http request",
+        "z": "906076393d9542b2",
+        "name": "pushout",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "ee95c4c29f5ef08c",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 1100,
+        "y": 540,
+        "wires": [
+            [
+                "a04a8abf407a8267"
+            ]
+        ]
+    },
+    {
+        "id": "a04a8abf407a8267",
+        "type": "switch",
+        "z": "906076393d9542b2",
+        "name": "Status code>=400",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "400",
+                "vt": "str"
+            },
+            {
+                "t": "gte",
+                "v": "400",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1290,
+        "y": 540,
+        "wires": [
+            [
+                "51fc5b20a065efab"
+            ],
+            [
+                "3adde18d089bb01c"
+            ]
+        ]
+    },
+    {
+        "id": "77a88e7de4ef4dbf",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "SELECT ALL",
+        "func": "\nmsg.topic='select timestamp,payload from lost_data';\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "363cffdd8ab3836b",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "SEND TO TYPICAL FLOW",
+        "func": "\nmsg.olddata=true;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 220,
+        "wires": [
+            [
+                "8d7414e20d8956c8"
+            ]
+        ]
+    },
+    {
+        "id": "52b0e080b9593f76",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "CRON JOB",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "120",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 650,
+        "y": 160,
+        "wires": [
+            [
+                "77a88e7de4ef4dbf"
+            ]
+        ]
+    },
+    {
+        "id": "c8af65d51e21f4a0",
+        "type": "split",
+        "z": "906076393d9542b2",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 1210,
+        "y": 160,
+        "wires": [
+            [
+                "363cffdd8ab3836b"
+            ]
+        ]
+    },
+    {
+        "id": "bb06398443970437",
+        "type": "comment",
+        "z": "906076393d9542b2",
+        "name": "RETRY PAST FAILS",
+        "info": "",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "1adb58484c2e1ff2",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "AUTO",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payloadType": "str",
+        "x": 490,
+        "y": 880,
+        "wires": [
+            [
+                "b09347b3ff6535ad"
+            ]
+        ]
+    },
+    {
+        "id": "b09347b3ff6535ad",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "CREATE DATA LOSS TABLE",
+        "func": "\nmsg.topic='create table lost_data (\\\nid integer primary key autoincrement,timestamp text,payload text,format text)';\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e99955506f78d77a",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "CONF",
+        "func": "//flow.set(\"retrylimit\",5);\n//flow.set(\"targetUrl\",\"http://10.100.59.183:1881/pushData\");\n\nflow.set(\"retrylimit\",env.get('retrylimit'));\nflow.set(\"targetUrl\",env.get('targetUrl'));\nmsg.payload={};\n\nmsg.payload.targetUrl=flow.get('targetUrl');\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 800,
+        "wires": [
+            [
+                "e1b46463b11a0e8d"
+            ]
+        ]
+    },
+    {
+        "id": "b102d82502849623",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 520,
+        "y": 800,
+        "wires": [
+            [
+                "e99955506f78d77a"
+            ]
+        ]
+    },
+    {
+        "id": "8987e83b8b488f48",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "Normal Operation",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "\"MY PAYLOAD\"",
+        "payloadType": "str",
+        "x": 380,
+        "y": 1380,
+        "wires": [
+            [
+                "af9791fe5b686855"
+            ]
+        ]
+    },
+    {
+        "id": "af9791fe5b686855",
+        "type": "http request",
+        "z": "906076393d9542b2",
+        "name": "callin",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://10.100.59.183:1881/datain",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "basic",
+        "x": 570,
+        "y": 1380,
+        "wires": [
+            [
+                "12c5786e6fe413ed"
+            ]
+        ]
+    },
+    {
+        "id": "12c5786e6fe413ed",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 1380,
+        "wires": []
+    },
+    {
+        "id": "96d0655bde3648ac",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1470,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "3761c8310330fb57",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 330,
+        "y": 1460,
+        "wires": [
+            [
+                "2a7334edcfb11b7f"
+            ]
+        ]
+    },
+    {
+        "id": "2a7334edcfb11b7f",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "CONF -WRONG",
+        "func": "\nflow.set(\"targetUrl\",\"http://10.100.59.183:1881/noapi\");\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 1460,
+        "wires": [
+            [
+                "ce9a7e15d7d4773a"
+            ]
+        ]
+    },
+    {
+        "id": "ce9a7e15d7d4773a",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "245276b1e8e474aa",
+        "type": "function",
+        "z": "906076393d9542b2",
+        "name": "CONF -CORRECT",
+        "func": "\nflow.set(\"targetUrl\",\"http://10.100.59.183:1881/pushdata\");\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 1560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "82de9423f3a95fac",
+        "type": "inject",
+        "z": "906076393d9542b2",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 330,
+        "y": 1560,
+        "wires": [
+            [
+                "245276b1e8e474aa"
+            ]
+        ]
+    },
+    {
+        "id": "86799a5927841ee5",
+        "type": "file",
+        "z": "906076393d9542b2",
+        "name": "",
+        "filename": "/data/receivedTimestamps",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 880,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e1b46463b11a0e8d",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "e72d30206221babf",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "b2179ac409d6bf0f",
+        "type": "json",
+        "z": "906076393d9542b2",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 570,
+        "y": 540,
+        "wires": [
+            [
+                "c2ce991733bf9dd0"
+            ]
+        ]
+    },
+    {
+        "id": "8d7414e20d8956c8",
+        "type": "json",
+        "z": "906076393d9542b2",
+        "name": "",
+        "property": "payload.payload",
+        "action": "",
+        "pretty": false,
+        "x": 930,
+        "y": 280,
+        "wires": [
+            [
+                "c2ce991733bf9dd0"
+            ]
+        ]
+    },
+    {
+        "id": "1d706e16bbb158f4",
+        "type": "debug",
+        "z": "906076393d9542b2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "a78208fb13675ce1",
+        "type": "function",
+        "z": "1a12bb05ee871e3e",
+        "name": "function 9",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ab19d4df5ae3655",
+        "type": "function",
+        "z": "62a8e98efcfbf0c5",
+        "name": "function 10",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 190,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f6d32fbdd3294b2",
+        "type": "function",
+        "z": "ecc08510d6d8a5ae",
+        "name": "function 11",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 190,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c1b9960d68f6cb49",
+        "type": "http in",
+        "z": "e96f8b671b5f9a61",
+        "name": "",
+        "url": "/time2",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "d0bf1aba03448e91"
+            ]
+        ]
+    },
+    {
+        "id": "2a82b93d4fe003f7",
+        "type": "http response",
+        "z": "e96f8b671b5f9a61",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 610,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "d0bf1aba03448e91",
+        "type": "function",
+        "z": "e96f8b671b5f9a61",
+        "name": "function 1",
+        "func": "msg.payload=Date.now();\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "2a82b93d4fe003f7"
+            ]
+        ]
+    },
+    {
+        "id": "7e0fe9c9107040f7",
+        "type": "http request",
+        "z": "e96f8b671b5f9a61",
+        "name": "GET PIPELINES",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "ml-pipeline.kubeflow.svc.cluster.local:8888/apis/v2beta1/pipelines",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "bearer",
+        "senderr": false,
+        "headers": [],
+        "x": 350,
+        "y": 320,
+        "wires": [
+            [
+                "4b5bfc02999ef884"
+            ]
+        ]
+    },
+    {
+        "id": "a350e1b0c2ec8cc6",
+        "type": "inject",
+        "z": "e96f8b671b5f9a61",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 320,
+        "wires": [
+            [
+                "7e0fe9c9107040f7"
+            ]
+        ]
+    },
+    {
+        "id": "4b5bfc02999ef884",
+        "type": "debug",
+        "z": "e96f8b671b5f9a61",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "41c388fcc2162481",
+        "type": "inject",
+        "z": "e96f8b671b5f9a61",
+        "name": "inject",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "d44002e6c5a63aab"
+            ]
+        ]
+    },
+    {
+        "id": "d44002e6c5a63aab",
+        "type": "http request",
+        "z": "e96f8b671b5f9a61",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "localhost:8888/time2",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "e38a773eb0263778"
+            ]
+        ]
+    },
+    {
+        "id": "e38a773eb0263778",
+        "type": "debug",
+        "z": "e96f8b671b5f9a61",
+        "name": "HTTP Response",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "46a1cf019fab80a0",
+        "type": "join",
+        "z": "957658b138a6d868",
+        "name": "",
+        "mode": "auto",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": "false",
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "x": 670,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1305595e42e3d357",
+        "type": "inject",
+        "z": "957658b138a6d868",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "fa6b3d63b41f430f"
+            ]
+        ]
+    },
+    {
+        "id": "e06b346c4596e817",
+        "type": "inject",
+        "z": "957658b138a6d868",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "274e6150ed370adf"
+            ]
+        ]
+    },
+    {
+        "id": "274e6150ed370adf",
+        "type": "function",
+        "z": "957658b138a6d868",
+        "name": "formulate rules",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 440,
+        "wires": [
+            [
+                "46a1cf019fab80a0"
+            ]
+        ]
+    },
+    {
+        "id": "fa6b3d63b41f430f",
+        "type": "http request",
+        "z": "957658b138a6d868",
+        "name": "call Preprocess Pipeline from Kubeflow",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 410,
+        "y": 160,
+        "wires": [
+            [
+                "46a1cf019fab80a0"
+            ]
+        ]
+    },
+    {
+        "id": "f4e51702dfd202e4",
+        "type": "http request",
+        "z": "6049dc5d721055aa",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://10.1.104.40:5000/preprocess",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "d7f0601733f3b2f6"
+            ]
+        ]
+    },
+    {
+        "id": "bd1c97eb8b364854",
+        "type": "inject",
+        "z": "6049dc5d721055aa",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 400,
+        "wires": [
+            [
+                "f4e51702dfd202e4"
+            ]
+        ]
+    },
+    {
+        "id": "d7f0601733f3b2f6",
+        "type": "debug",
+        "z": "6049dc5d721055aa",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "d7858a52ed37be30",
+        "type": "http in",
+        "z": "6049dc5d721055aa",
+        "name": "",
+        "url": "/events2",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 180,
+        "wires": [
+            [
+                "e454b67ebcbfe45e",
+                "6dadbb3aba9471a1"
+            ]
+        ]
+    },
+    {
+        "id": "e454b67ebcbfe45e",
+        "type": "function",
+        "z": "6049dc5d721055aa",
+        "name": "Filter Metadata & Extract App and Model",
+        "func": "\n//extract metadata from incoming message\n\n//add metadata for model id to routing key placeholder\n\n//if confidence is low extract model id and \n//add in routing key placeholder, then go to output 2\n\n\nnode.send([null,msg])\n\n//else to output 1\nnode.send([msg,null])\n\n\n\nreturn msg;",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 180,
+        "wires": [
+            [
+                "90410ca7633002c9"
+            ],
+            [
+                "e99988e358c98644"
+            ]
+        ]
+    },
+    {
+        "id": "6dadbb3aba9471a1",
+        "type": "debug",
+        "z": "6049dc5d721055aa",
+        "name": "debug 22",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 320,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "e99988e358c98644",
+        "type": "amqp-out",
+        "z": "6049dc5d721055aa",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "exchangeName": "feedback",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "activelearning.app1.model1",
+        "exchangeRoutingKeyType": "str",
+        "exchangeDurable": true,
+        "amqpProperties": "{ \"headers\": {} }",
+        "rpcTimeoutMilliseconds": 3000,
+        "outputs": 0,
+        "x": 870,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "90410ca7633002c9",
+        "type": "debug",
+        "z": "6049dc5d721055aa",
+        "name": "DONOOP",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "cd31073cab51942b",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "e78ab4a495604534",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "7b692b91b4972d1e",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "c14d1e92d24215a6",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 11",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "8028be078029a890",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "1c248a9073b69e38",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "test input feedback for active learning",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "routingKey",
+                "v": "activelearning.app1.model1",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"modelID\":4,\"feedback\":\"ok\"}",
+        "payloadType": "json",
+        "x": 230,
+        "y": 300,
+        "wires": [
+            [
+                "cab919aa4d82e027"
+            ]
+        ]
+    },
+    {
+        "id": "42a41d73365ab603",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "test input feedback with other routing key",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "routingKey",
+                "v": "swarmlearning",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"modelID\":4,\"feedback\":\"ok\"}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 340,
+        "wires": [
+            [
+                "cab919aa4d82e027"
+            ]
+        ]
+    },
+    {
+        "id": "af97622b6a921279",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "67dab128c68a9ed3",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 20",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "740fa6483035347c",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "connect",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 580,
+        "wires": [
+            [
+                "f871dadbbc6c7b9a"
+            ]
+        ]
+    },
+    {
+        "id": "599f5008a71c8b05",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Get Notifications through API Listener",
+        "info": "",
+        "x": 190,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "b29ce175940fbb81",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Test Input Section",
+        "info": "",
+        "x": 150,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "30aceccc8b829b94",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "test read",
+        "props": [
+            {
+                "p": "objectName",
+                "v": "activelearning",
+                "vt": "str"
+            },
+            {
+                "p": "bucket",
+                "v": "humaine",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 720,
+        "wires": [
+            [
+                "5ab4978229c432ea"
+            ]
+        ]
+    },
+    {
+        "id": "db79735f71ea9c0f",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "29109ef4e8b71e73",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 15",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "caf6dacf011b92b8",
+        "type": "json",
+        "z": "5d2d32acc5591747",
+        "name": "",
+        "property": "payload.objectData",
+        "action": "",
+        "pretty": false,
+        "x": 490,
+        "y": 700,
+        "wires": [
+            [
+                "db79735f71ea9c0f"
+            ]
+        ]
+    },
+    {
+        "id": "ec55a1e85cb955ae",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Test Output Section",
+        "info": "",
+        "x": 130,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "4299511756060742",
+        "type": "http request",
+        "z": "5d2d32acc5591747",
+        "name": "TRIGGER Kubeflow Retraining Pipeline",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 700,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fa5d8bc1d91e9134",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "GOOD FEEDBACK",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "routingKey",
+                "v": "activelearning.app1.model1",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"modelID\":4,\"feedback\":\"ok\",\"imageID\":1,\"doctorID\":5,\"patientID\":3}",
+        "payloadType": "json",
+        "x": 170,
+        "y": 940,
+        "wires": [
+            [
+                "e6119a46b815c12e",
+                "0de11f879fda3761"
+            ]
+        ]
+    },
+    {
+        "id": "aee36c513c25a05d",
+        "type": "function",
+        "z": "5d2d32acc5591747",
+        "name": "create parts",
+        "func": "msg.parts={};\nmsg.parts.id = msg.payload.imageID+msg.payload.patientID;\nmsg.parts.count=2;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 1100,
+        "wires": [
+            [
+                "4469175c609b2986"
+            ]
+        ]
+    },
+    {
+        "id": "4469175c609b2986",
+        "type": "join",
+        "z": "5d2d32acc5591747",
+        "name": "Join in One",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "comparisonField",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 750,
+        "y": 1100,
+        "wires": [
+            [
+                "c060845de5c1d46a",
+                "e4542c729bb3c791"
+            ]
+        ]
+    },
+    {
+        "id": "c060845de5c1d46a",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 34",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "ec2d362d0bc3e89a",
+        "type": "inject",
+        "z": "5d2d32acc5591747",
+        "name": "BAD FEEDBACK",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "routingKey",
+                "v": "activelearning.app1.model1",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"modelID\":4,\"feedback\":\"wrong\",\"imageID\":1,\"doctorID\":6,\"patientID\":2}",
+        "payloadType": "json",
+        "x": 180,
+        "y": 980,
+        "wires": [
+            [
+                "e6119a46b815c12e"
+            ]
+        ]
+    },
+    {
+        "id": "e4542c729bb3c791",
+        "type": "function",
+        "z": "5d2d32acc5591747",
+        "name": "compare feedbacks",
+        "func": "if ((msg.payload[0].feedback)==(msg.payload[1].feedback)) {\n    return [msg,null];\n} else {\n    return [null,msg];\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 1100,
+        "wires": [
+            [
+                "120b2d00836d1305"
+            ],
+            [
+                "341745117b49659b"
+            ]
+        ]
+    },
+    {
+        "id": "120b2d00836d1305",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "NORMAL",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "341745117b49659b",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "ALERT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "d8f8ff05db074e71",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 36",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 420,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "eb36a511c7513007",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Feedback Consolidation Pattern",
+        "info": "",
+        "x": 190,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "72c0e298081c706b",
+        "type": "batch",
+        "z": "5d2d32acc5591747",
+        "name": "batch 2",
+        "mode": "count",
+        "count": "2",
+        "overlap": "0",
+        "interval": 10,
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "dba7209f9a809b20",
+                "cd31073cab51942b"
+            ]
+        ]
+    },
+    {
+        "id": "dba7209f9a809b20",
+        "type": "join",
+        "z": "5d2d32acc5591747",
+        "name": "Join in One",
+        "mode": "auto",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "9bf2f7c9501794d5",
+                "c14d1e92d24215a6"
+            ]
+        ]
+    },
+    {
+        "id": "9bf2f7c9501794d5",
+        "type": "function",
+        "z": "5d2d32acc5591747",
+        "name": "Prepare Upload &Add Custom Metadata",
+        "func": "\n//add your custom metadata\nmsg.metaData = {'count':msg.payload.length, 'key':msg.fields.routingKey}\nmsg.payload = JSON.stringify(msg.payload);\n//var buf = Buffer.from(msg.payload, 'utf8');\n//msg.stream=buf;\nmsg.stream=msg.payload;\nmsg.objectName = msg.fields.routingKey+'_'+Date.now();\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 140,
+        "wires": [
+            [
+                "cdfe04f4b21ee8f2",
+                "8028be078029a890"
+            ]
+        ]
+    },
+    {
+        "id": "0de11f879fda3761",
+        "type": "debug",
+        "z": "5d2d32acc5591747",
+        "name": "debug 37",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "78681d24dfe363ab",
+        "type": "amqp-in",
+        "z": "5d2d32acc5591747",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "prefetch": 0,
+        "noAck": true,
+        "exchangeName": "amq.topic",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "activelearning.app1.model1",
+        "exchangeDurable": true,
+        "queueName": "activelearning",
+        "queueExclusive": false,
+        "queueDurable": true,
+        "queueAutoDelete": false,
+        "headers": "{}",
+        "x": 190,
+        "y": 80,
+        "wires": [
+            [
+                "d8f8ff05db074e71",
+                "72c0e298081c706b"
+            ]
+        ]
+    },
+    {
+        "id": "bb12b82d05721bca",
+        "type": "amqp-in",
+        "z": "5d2d32acc5591747",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "prefetch": 0,
+        "noAck": true,
+        "exchangeName": "feedback",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "activelearning.app1.model1",
+        "exchangeDurable": true,
+        "queueName": "feedback",
+        "queueExclusive": false,
+        "queueDurable": true,
+        "queueAutoDelete": false,
+        "headers": "{}",
+        "x": 210,
+        "y": 1100,
+        "wires": [
+            [
+                "aee36c513c25a05d"
+            ]
+        ]
+    },
+    {
+        "id": "cab919aa4d82e027",
+        "type": "amqp-out",
+        "z": "5d2d32acc5591747",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "exchangeName": "amq.topic",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "",
+        "exchangeRoutingKeyType": "str",
+        "exchangeDurable": true,
+        "amqpProperties": "{ \"headers\": {} }",
+        "rpcTimeoutMilliseconds": 3000,
+        "outputs": 0,
+        "x": 500,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "e6119a46b815c12e",
+        "type": "amqp-out",
+        "z": "5d2d32acc5591747",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "exchangeName": "feedback",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "",
+        "exchangeRoutingKeyType": "str",
+        "exchangeDurable": true,
+        "amqpProperties": "{ \"headers\": {} }",
+        "rpcTimeoutMilliseconds": 3000,
+        "outputs": 0,
+        "x": 500,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "5ab4978229c432ea",
+        "type": "objects",
+        "z": "5d2d32acc5591747",
+        "objects_name": "",
+        "host": "ad6a15d695780781",
+        "objects_operation": "getObject",
+        "objects_bucket": "humaine",
+        "objects_object": "feedback",
+        "objects_offset": "",
+        "objects_length": "",
+        "objects_stream": "",
+        "objects_size": "",
+        "objects_metadata": "",
+        "objects_sourceobject": "",
+        "objects_conditions": "",
+        "objects_objectslist": [],
+        "objects_prefix": "",
+        "objects_etag": "",
+        "objects_datetime": "",
+        "x": 310,
+        "y": 720,
+        "wires": [
+            [
+                "caf6dacf011b92b8"
+            ],
+            [
+                "29109ef4e8b71e73"
+            ]
+        ]
+    },
+    {
+        "id": "cdfe04f4b21ee8f2",
+        "type": "objects",
+        "z": "5d2d32acc5591747",
+        "objects_name": "Upload Batch",
+        "host": "ad6a15d695780781",
+        "objects_operation": "putObject",
+        "objects_bucket": "humaine",
+        "objects_object": "",
+        "objects_offset": "",
+        "objects_length": "",
+        "objects_stream": "",
+        "objects_size": "",
+        "objects_metadata": "",
+        "objects_sourceobject": "",
+        "objects_conditions": "",
+        "objects_objectslist": [],
+        "objects_prefix": "",
+        "objects_etag": "",
+        "objects_datetime": "",
+        "x": 1060,
+        "y": 140,
+        "wires": [
+            [
+                "e78ab4a495604534"
+            ],
+            [
+                "7b692b91b4972d1e"
+            ]
+        ]
+    },
+    {
+        "id": "f871dadbbc6c7b9a",
+        "type": "notifications",
+        "z": "5d2d32acc5591747",
+        "notifications_name": "Listen to bucket notifications",
+        "host": "ad6a15d695780781",
+        "notifications_operation": "listenBucketNotification",
+        "notifications_bucket": "humaine",
+        "notifications_notificationconfig": "",
+        "notifications_prefix": "",
+        "notifications_suffix": "",
+        "notifications_events": "",
+        "notifications_events_object_created_put": true,
+        "notifications_events_object_created_post": true,
+        "notifications_events_object_created_copy": true,
+        "notifications_events_object_created_complete_multipart_upload": true,
+        "notifications_events_object_removed_delete": true,
+        "notifications_events_object_accessed_get": true,
+        "notifications_events_object_accessed_head": true,
+        "x": 340,
+        "y": 580,
+        "wires": [
+            [
+                "af97622b6a921279",
+                "4299511756060742"
+            ],
+            [
+                "67dab128c68a9ed3"
+            ]
+        ]
+    },
+    {
+        "id": "66943fcd7a86b071",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Testing part",
+        "info": "",
+        "x": 130,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "fbfee0756d74b05a",
+        "type": "comment",
+        "z": "5d2d32acc5591747",
+        "name": "Main Implementation",
+        "info": "",
+        "x": 150,
+        "y": 1200,
+        "wires": []
+    },
+    {
+        "id": "c7ad945016ec4e2c",
+        "type": "debug",
+        "z": "d0f30bc118fd474b",
+        "name": "debug 23",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "bbac0515ad27ade1",
+        "type": "comment",
+        "z": "d0f30bc118fd474b",
+        "name": "NEW FEEDBACK FILE AVAILABLE ALERT",
+        "info": "",
+        "x": 320,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "9002d9c28ae22f53",
+        "type": "function",
+        "z": "d0f30bc118fd474b",
+        "name": "function 14",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "531123c84a0c114e",
+        "type": "http request",
+        "z": "d0f30bc118fd474b",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "",
+        "persist": false,
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 690,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e2f353a6322d50f0",
+        "type": "amqp-in",
+        "z": "d0f30bc118fd474b",
+        "name": "",
+        "broker": "8a0706320fa877e8",
+        "prefetch": 0,
+        "noAck": true,
+        "exchangeName": "feedback",
+        "exchangeType": "topic",
+        "exchangeRoutingKey": "activelearning",
+        "exchangeDurable": true,
+        "queueName": "",
+        "queueExclusive": true,
+        "queueDurable": false,
+        "queueAutoDelete": true,
+        "headers": "{}",
+        "x": 270,
+        "y": 420,
+        "wires": [
+            [
+                "c7ad945016ec4e2c",
+                "9002d9c28ae22f53"
+            ]
+        ]
+    },
+    {
+        "id": "dc13e2fa53f82af5",
+        "type": "http in",
+        "z": "9c05e48cc9829adb",
+        "name": "",
+        "url": "/minioevents",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 160,
+        "wires": [
+            [
+                "0a0d7338d06ff064",
+                "5c47d43167b19134"
+            ]
+        ]
+    },
+    {
+        "id": "4e38ee4140554e90",
+        "type": "http response",
+        "z": "9c05e48cc9829adb",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 690,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "ef0da122707f640a",
+        "type": "http in",
+        "z": "9c05e48cc9829adb",
+        "name": "",
+        "url": "/minioevents",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 320,
+        "y": 240,
+        "wires": [
+            [
+                "618816ea5fbaa158",
+                "790f745216bd820e"
+            ]
+        ]
+    },
+    {
+        "id": "ea8f866a6c177dca",
+        "type": "http response",
+        "z": "9c05e48cc9829adb",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 690,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "0a0d7338d06ff064",
+        "type": "function",
+        "z": "9c05e48cc9829adb",
+        "name": "function 12",
+        "func": "flow.set('notification',msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 160,
+        "wires": [
+            [
+                "4e38ee4140554e90"
+            ]
+        ]
+    },
+    {
+        "id": "618816ea5fbaa158",
+        "type": "function",
+        "z": "9c05e48cc9829adb",
+        "name": "function 13",
+        "func": "msg.payload=flow.get('notification')\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 240,
+        "wires": [
+            [
+                "ea8f866a6c177dca"
+            ]
+        ]
+    },
+    {
+        "id": "5c47d43167b19134",
+        "type": "debug",
+        "z": "9c05e48cc9829adb",
+        "name": "debug 17",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "790f745216bd820e",
+        "type": "debug",
+        "z": "9c05e48cc9829adb",
+        "name": "debug 18",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "094156b911d814df",
+        "type": "inject",
+        "z": "7c7059814366565b",
+        "name": "declare availability",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"node\":\"factoryA\",\"availability\":true}",
+        "payloadType": "json",
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "6a5f424ca9bd73f7"
+            ]
+        ]
+    },
+    {
+        "id": "771b1fe2e8f20b0b",
+        "type": "inject",
+        "z": "7c7059814366565b",
+        "name": "withdraw availability",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"node\":\"factoryA\",\"availability\":false}",
+        "payloadType": "json",
+        "x": 290,
+        "y": 280,
+        "wires": [
+            [
+                "6a5f424ca9bd73f7"
+            ]
+        ]
+    },
+    {
+        "id": "133af114bd637f33",
+        "type": "comment",
+        "z": "7c7059814366565b",
+        "name": "Initialization",
+        "info": "",
+        "x": 250,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "6ee0ee74c5381192",
+        "type": "comment",
+        "z": "7c7059814366565b",
+        "name": "DISCOVERY REGISTRY",
+        "info": "Assumes an incoming message of the form:\n`msg.payload.node` containing the ip or url of the node\n`msg.payload.availability` (boolean) indicating the availability of the node",
+        "x": 290,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "387d66f2b793c2a2",
+        "type": "debug",
+        "z": "7c7059814366565b",
+        "name": "RECEIVED UPDATE",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "1a58f8f052e014d4",
+        "type": "http in",
+        "z": "7c7059814366565b",
+        "name": "",
+        "url": "/SLnodes",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 250,
+        "y": 540,
+        "wires": [
+            [
+                "cc64751107ca14fd"
+            ]
+        ]
+    },
+    {
+        "id": "cc64751107ca14fd",
+        "type": "function",
+        "z": "7c7059814366565b",
+        "name": "retrieve list",
+        "func": "\nmsg.payload =Array.from(flow.get(\"listSet\"));\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 540,
+        "wires": [
+            [
+                "bd2b11911f22599b"
+            ]
+        ]
+    },
+    {
+        "id": "bd2b11911f22599b",
+        "type": "http response",
+        "z": "7c7059814366565b",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 610,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "1356d31ced7ce3e5",
+        "type": "amqp-in",
+        "z": "7c7059814366565b",
+        "name": "SLDiscovery Listener",
+        "broker": "8a0706320fa877e8",
+        "prefetch": 0,
+        "noAck": true,
+        "exchangeName": "SLdiscovery",
+        "exchangeType": "fanout",
+        "exchangeRoutingKey": "",
+        "exchangeDurable": true,
+        "queueName": "discoveryService",
+        "queueExclusive": true,
+        "queueDurable": true,
+        "queueAutoDelete": true,
+        "headers": "{}",
+        "x": 280,
+        "y": 420,
+        "wires": [
+            [
+                "e7d2a579e13cf9e5"
+            ]
+        ]
+    },
+    {
+        "id": "6a5f424ca9bd73f7",
+        "type": "amqp-out",
+        "z": "7c7059814366565b",
+        "name": "SLDiscovery Testing Publisher",
+        "broker": "8a0706320fa877e8",
+        "exchangeName": "SLdiscovery",
+        "exchangeType": "fanout",
+        "exchangeRoutingKey": "",
+        "exchangeRoutingKeyType": "str",
+        "exchangeDurable": true,
+        "amqpProperties": "{ \"headers\": {} }",
+        "rpcTimeoutMilliseconds": 3000,
+        "outputs": 0,
+        "x": 530,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "635d48eb7924c1d4",
+        "type": "inject",
+        "z": "7c7059814366565b",
+        "name": "inject",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 680,
+        "wires": [
+            [
+                "f49429da9d4fbe4b"
+            ]
+        ]
+    },
+    {
+        "id": "f49429da9d4fbe4b",
+        "type": "function",
+        "z": "7c7059814366565b",
+        "name": "initialize list of nodes",
+        "func": "var array = new Set();\nflow.set('listSet', array);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3cb65bb5b1a97d41",
+        "type": "inject",
+        "z": "7c7059814366565b",
+        "name": "inject",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 100,
+        "wires": [
+            [
+                "2d2acadc64c7497c",
+                "bb1dcfceb8445c77"
+            ]
+        ]
+    },
+    {
+        "id": "2d2acadc64c7497c",
+        "type": "function",
+        "z": "7c7059814366565b",
+        "name": "test print list of nodes",
+        "func": "msg.payload=flow.get('listSet');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 100,
+        "wires": [
+            [
+                "140a90063c784670"
+            ]
+        ]
+    },
+    {
+        "id": "140a90063c784670",
+        "type": "debug",
+        "z": "7c7059814366565b",
+        "name": "list",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6e93d3421cf1fb4f",
+        "type": "comment",
+        "z": "7c7059814366565b",
+        "name": "Testing",
+        "info": "",
+        "x": 230,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "e7d2a579e13cf9e5",
+        "type": "function",
+        "z": "7c7059814366565b",
+        "name": "update list set",
+        "func": "//need to check for duplicates already in\n\nvar array = new Set();\narray = flow.get('listSet');\n\n\nif (msg.payload.availability){\n    //add to list in a flow variable    \n    array.add(msg.payload.node);\n    flow.set('listSet',array);\n} else {\n    //remove from list\n    array.delete(msg.payload.node);    \n    flow.set('list', array);\n\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 420,
+        "wires": [
+            [
+                "387d66f2b793c2a2"
+            ]
+        ]
+    },
+    {
+        "id": "bb1dcfceb8445c77",
+        "type": "http request",
+        "z": "7c7059814366565b",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "localhost:8888/SLnodes",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 430,
+        "y": 60,
+        "wires": [
+            [
+                "b68e7fb5ce605128"
+            ]
+        ]
+    },
+    {
+        "id": "b68e7fb5ce605128",
+        "type": "debug",
+        "z": "7c7059814366565b",
+        "name": "HTTP Response",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 60,
+        "wires": []
+    }
+]
