@@ -28,4 +28,32 @@ jobs:
         context: .
         file: ./jupyter.Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}:latest
+        tags: ghcr.io/${{ github.repository }}:v1.0.${{(github.run_number)}}  // commit id
+
+  deploy_pipeline:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Απαραίτητο για να συγκρίνει το git ιστορικό
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install kfp python-dotenv
+
+      - name: Detect and Submit Changed Pipelines
+        env:
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.image_tag }}
+          KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
+          KUBEFLOW_TOKEN: ${{ secrets.KUBEFLOW_TOKEN }}
+          PRE_COMMIT_SHA: ${{github.event.before}}
+          SHA: ${{github.sha}}
+        run: |
+          chmod +x scripts/deploy_pipeline.sh
+          ./scripts/deploy_pipeline.sh
