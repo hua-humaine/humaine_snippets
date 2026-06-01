@@ -5,9 +5,9 @@ def train_model_op():
     import pandas as pd
     from sklearn.datasets import make_classification
     # ... ο κώδικας σου ...
-    print("Training component running...........")
+    print("Training component running..")
 
-@dsl.pipeline(name='generic-training-pipeline')
+@dsl.pipeline(name='generic-training-pipeline-entry')
 def my_pipeline(image_tag: str): # <--- Περνάμε το image ως παράμετρο
     # Χρησιμοποιούμε το container_spec για να ορίσουμε το image δυναμικά
     train_task = train_model_op()
