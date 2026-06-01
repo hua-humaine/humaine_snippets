@@ -13,3 +13,5 @@ shap
 pycaret
 xgboost
 scikit-learn
+kfp==1.8.22
+kfp-server-api==1.8.12
