@@ -10,7 +10,6 @@ joblib
 openai
 python-dotenv
 shap
-pycaret
 xgboost
-scikit-learn
+pycaret
 kfp>=1.8.0,<2.0.0
