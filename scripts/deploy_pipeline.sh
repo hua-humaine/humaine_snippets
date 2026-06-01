@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+echo "DEBUG: Checking variables inside container..."
+echo "KUBEFLOW_URL is: '$KUBEFLOW_URL'" # Αν αυτό βγει κενό ή placeholder, εκεί είναι το πρόβλημα!
+echo "IMAGE_URL is: '$IMAGE_URL'"
+
 echo "Detecting changed pipelines..."
 # Το git diff αφαιρέθηκε! Διαβάζουμε απευθείας τη μεταβλητή από το GitHub Actions
 echo "Files to check: $CHANGED_FILES"
