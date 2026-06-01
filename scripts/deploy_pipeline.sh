@@ -2,8 +2,9 @@
 set -e
 
 echo "Detecting changed pipelines..."
-# Βρίσκουμε ποια αρχεία άλλαξαν
-CHANGED_FILES=$(git diff --name-only $PRE_COMMIT_SHA $SHA || git ls-files)
+# Το git diff αφαιρέθηκε! Διαβάζουμε απευθείας τη μεταβλητή από το GitHub Actions
+echo "Files to check: $CHANGED_FILES"
+
 PIPELINES_TO_RUN=$(python scripts/find_pipelines.py $CHANGED_FILES)
 
 if [ -z "$PIPELINES_TO_RUN" ]; then
@@ -18,7 +19,6 @@ for FILE in $PIPELINES_TO_RUN; do
     python $FILE --output pipeline_temp.yaml
     
     # 2. Injection: Αντικαθιστούμε το image δυναμικά στο YAML 
-    # (yq: -i για in-place edit, .spec.templates[] επιλέγει όλα τα templates)
     if command -v yq &> /dev/null; then
         yq -i "(.spec.templates[] | select(.container.image != null) | .container.image) = \"$IMAGE_URL\"" pipeline_temp.yaml
         echo "Successfully injected image $IMAGE_URL into YAML."
@@ -35,6 +35,6 @@ for FILE in $PIPELINES_TO_RUN; do
         --password "$KUBEFLOW_PASSWORD"
     
     # 4. Καθαρισμός
-    rm pipeline_temp.yaml
+    rm -f pipeline_temp.yaml
     echo "Finished processing $FILE"
 done
