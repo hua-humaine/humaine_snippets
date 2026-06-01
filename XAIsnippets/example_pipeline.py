@@ -7,7 +7,7 @@ import os
 
 @dsl.pipeline(
     name='simple-training-pipeline',
-    description='A simple test pipeline'
+    description='A simple test pipelin!e'
 )
 def run_simple_pipeline():
     print("--- Pipeline Started ---")
