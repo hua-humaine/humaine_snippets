@@ -22,7 +22,7 @@ for FILE in $PIPELINES_TO_RUN; do
     echo "KUBEFLOW_URL: $KUBEFLOW_URL"
     echo "IMAGE_URL: $IMAGE_URL"
     
-    python sripts/submit_to_kubeflow.py  \
+    python scripts/submit_to_kubeflow.py  \
         --file pipeline_temp.yaml \
         --url "$KUBEFLOW_URL" \
         --image "$IMAGE_URL" \
