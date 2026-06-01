@@ -1,45 +1,21 @@
-# Base image από το Kubeflow
+# Base image
 FROM kubeflownotebookswg/jupyter-scipy
 
-# 1. Ρυθμίσεις χρηστών (ως root)
+# 1. Εγκατάσταση του uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uv /bin/
+
 USER root
-RUN usermod -u 1000 jovyan && \
-    usermod -d /home/jovyan jovyan
-
-# Ρυθμίσεις περιβάλλοντος
+RUN usermod -u 1000 jovyan && usermod -d /home/jovyan jovyan
 ENV NB_USER=jovyan
-ENV NB_UID=1000
-ENV NB_PREFIX=/
-ENV HOME=/home/$NB_USER
-ENV SHELL=/bin/bash
-
 RUN chown -R jovyan /home/jovyan
 
-# 2. Εγκατάσταση συστημικών εργαλείων
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# 3. Προετοιμασία περιβάλλοντος
 USER jovyan
 WORKDIR /home/jovyan
 
-# 4. Αναβάθμιση εργαλείων pip
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-
-# 5. ΠΡΟ-ΕΓΚΑΤΑΣΤΑΣΗ των "δύσκολων" πακέτων (χωρίς dependencies compilation)
-RUN pip install --no-cache-dir --prefer-binary numpy scipy
-
-
-# 5. Εγκατάσταση όλων των dependencies από το requirements.txt
-# Το --prefer-binary επιτρέπει την εγκατάσταση έτοιμων πακέτων για ταχύτητα
-# ενώ επιτρέπει στο pip να κάνει compile αν κάτι λείπει.
+# 2. Εγκατάσταση των dependencies με το uv
+# Το uv pip install είναι 10-100x πιο γρήγορο και έχει τον καλύτερο solver
 COPY --chown=jovyan:jovyan requirements.txt .
-RUN pip install --use-pep517 --no-cache-dir --prefer-binary -r requirements.txt
-
-RUN pip install --no-cache-dir --prefer-binary scikit-learn
+RUN uv pip install --no-cache --system -r requirements.txt
 
 # Τελικό user setting για ασφάλεια
 USER jovyan
