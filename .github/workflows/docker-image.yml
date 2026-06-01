@@ -53,6 +53,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Log in to the GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
@@ -62,8 +69,6 @@ jobs:
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
-          # Τρέχουμε το script μέσα από το image μας
-          # Το $(pwd) mount-άρεται στο /home/jovyan για να βλέπει το image τον κώδικα
           docker run --rm \
             -v $(pwd):/home/jovyan \
             -e PRE_COMMIT_SHA -e SHA \
