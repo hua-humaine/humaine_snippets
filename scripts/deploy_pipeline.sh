@@ -17,7 +17,17 @@ for FILE in $PIPELINES_TO_RUN; do
     python $FILE --output pipeline_temp.yaml
     
     # Submit
-    python scripts/submit_to_kubeflow.py --file pipeline_temp.yaml --image "$IMAGE_URL"
+    # python scripts/submit_to_kubeflow.py --file pipeline_temp.yaml --image "$IMAGE_URL"
+    echo "Printing environment variables for debugging:"
+    echo "KUBEFLOW_URL: $KUBEFLOW_URL"
+    echo "IMAGE_URL: $IMAGE_URL"
+    
+    python sripts/submit_to_kubeflow.py  \
+        --file pipeline_temp.yaml \
+        --url "$KUBEFLOW_URL" \
+        --image "$IMAGE_URL" \
+        --username "$KUBEFLOW_USERNAME" \
+        --password "$KUBEFLOW_PASSWORD"
     
     # Καθαρισμός
     rm pipeline_temp.yaml
