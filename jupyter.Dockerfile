@@ -39,5 +39,7 @@ RUN pip install --no-cache-dir --prefer-binary numpy scipy
 COPY --chown=jovyan:jovyan requirements.txt .
 RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
+RUN pip install --no-cache-dir --prefer-binary scikit-learn
+
 # Τελικό user setting για ασφάλεια
 USER jovyan

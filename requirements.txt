@@ -15,4 +15,3 @@ python-dotenv>=1.0.0
 shap
 pycaret
 xgboost
-scikit-learn
