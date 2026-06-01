@@ -3,27 +3,22 @@ import sys
 import os
 
 def is_pipeline_file(filename):
-    # Εδώ τυπώνουμε για να δούμε αν το αρχείο υπάρχει όντως
-    if not os.path.exists(filename):
-        print(f"DEBUG: File not found: {filename}", file=sys.stderr)
-        return False
-        
     if 'find_pipelines.py' in filename:
         return False
-        
     try:
         with open(filename, "r") as f:
             content = f.read()
-            print(f"DEBUG: Reading {filename}...", file=sys.stderr)
             tree = ast.parse(content)
+            
+            # Ψάχνουμε όλους τους κόμβους για να δούμε τι υπάρχει
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
+                    print(f"DEBUG: Found function '{node.name}' in {filename}", file=sys.stderr)
                     for decorator in node.decorator_list:
-                        # Χαλαρός έλεγχος: αν υπάρχει το όνομα 'pipeline' κάπου στο decorator
-                        # Αυτό θα το πιάσει σίγουρα
-                        deco_str = ast.dump(decorator)
-                        print(f"DEBUG: Found decorator in {filename}: {deco_str}", file=sys.stderr)
-                        if 'pipeline' in deco_str:
+                        deco_dump = ast.dump(decorator)
+                        print(f"DEBUG: Found decorator: {deco_dump}", file=sys.stderr)
+                        # Αν υπάρχει η λέξη 'pipeline' οπουδήποτε, το δεχόμαστε!
+                        if 'pipeline' in deco_dump.lower():
                             return True
     except Exception as e:
         print(f"DEBUG: Error parsing {filename}: {e}", file=sys.stderr)

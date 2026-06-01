@@ -1,9 +1,14 @@
+from kfp import dsl
 import pandas as pd
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 import joblib
 import os
 
+@dsl.pipeline(
+    name='simple-training-pipeline',
+    description='A simple test pipeline'
+)
 def run_simple_pipeline():
     print("--- Pipeline Started ---")
     
@@ -25,4 +30,9 @@ def run_simple_pipeline():
     print("--- Pipeline Finished Successfully ---")
 
 if __name__ == "__main__":
-    run_simple_pipeline()
+    # Αυτό το χρειαζόμαστε για να το κάνουμε compile σε YAML
+    from kfp import compiler
+    compiler.Compiler().compile(
+        pipeline_func=run_simple_pipeline,
+        package_path='pipeline_temp.yaml'
+    )
