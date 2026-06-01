@@ -9,13 +9,11 @@ sys.path.append(os.path.abspath("notebook_snippets"))
 from KubeflowPipelineAPIConnector_New_version_cleaned import KFPClientManager 
 
 def submit_pipeline(file_name, url, image, username, password):
-    # Debugging: Εκτύπωση έκδοσης στο console του GitHub Actions
     print(f"--- Environment Debug ---")
     print(f"KFP SDK Version: {kfp.__version__}")
     print(f"Target URL: {url}")
     print(f"--------------------------")
 
-    # 1. Αρχικοποίηση του Manager
     manager = KFPClientManager(
         api_url=url,
         dex_username=username,
@@ -24,35 +22,41 @@ def submit_pipeline(file_name, url, image, username, password):
         skip_tls_verify=True
     )
     
-    # 2. Σύνδεση
     print("Authenticating with Kubeflow...")
     client = manager.create_kfp_client()
 
-    # 3. Υποβολή του pipeline με υβριδική λογική
     print(f"Submitting pipeline: {file_name} with image: {image}")
     
     try:
-        # Έλεγχος αν τρέχουμε σε KFP SDK v2 (major version >= 2)
-        major_version = int(kfp.__version__.split('.')[0])
-        
-        if major_version >= 2:
-            # Υποβολή για KFP v2 (Απαιτεί experiment_name)
+        # Ανίχνευση του API Version από τον client
+        # Αν το cluster είναι παλιό, ο client συχνά εμφανίζει v1beta1 ή v1
+        api_version = getattr(client, '_api_version', 'v2beta1')
+        print(f"Detected API version: {api_version}")
+
+        if "v2" in api_version:
+            # V2 Logic (όπως το είχες)
             client.create_run_from_pipeline_package(
                 pipeline_file=file_name,
                 arguments={"container_image": image},
                 experiment_name='Default'
             )
         else:
-            # Υποβολή για KFP v1 (Classic)
+            # Legacy V1 Logic: Χρησιμοποιούμε το upload_pipeline και μετά create_run
+            # Αυτό παρακάμπτει το endpoint /experiments που κρασάρει
+            pipeline_upload = client.upload_pipeline(pipeline_package_path=file_name)
             client.create_run_from_pipeline_package(
-                pipeline_file=file_name,
-                arguments={"container_image": image}
+                pipeline_id=pipeline_upload.id,
+                arguments={"container_image": image},
+                experiment_name='Default',
+                run_name=f"run-{image.split(':')[-1]}"
             )
+            
         print("Pipeline submitted successfully.")
         
     except ApiException as e:
         print(f"ApiException caught (Status: {e.status}): {e.reason}")
         print(f"Body: {e.body}")
+        # Αν το 404 επιμένει, εδώ ξέρουμε σίγουρα ότι φταίει το endpoint
         sys.exit(1)
     except Exception as e:
         print(f"General error: {str(e)}")
