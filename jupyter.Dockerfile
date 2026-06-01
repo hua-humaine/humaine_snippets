@@ -1,5 +1,5 @@
 # Base image
-FROM kubeflownotebookswg/jupyter-scipy
+FROM kubeflownotebookswg/jupyter-scipy:v1.7.0
 
 # 1. Εγκατάσταση του uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uv /bin/
