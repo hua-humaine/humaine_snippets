@@ -16,8 +16,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        set-timestamps: true  #
 
     - name: Set image url
       id: set_image_url
@@ -44,7 +42,7 @@ jobs:
         push: true
         tags: ${{ env.IMAGE_URL }}
         cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha,mode=min
 
   deploy_pipeline:
     needs: build_and_push

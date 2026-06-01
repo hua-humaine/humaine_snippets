@@ -13,16 +13,13 @@ RUN chown -R jovyan /home/jovyan
 USER jovyan
 WORKDIR /home/jovyan
 
-# 2. Εγκατάσταση των dependencies
-# Χρησιμοποιούμε --mount=type=cache για να μην ξανακατεβάζει τα πακέτα από το μηδέν
-# Αφαιρέσαμε το --no-cache ώστε το uv να εκμεταλλεύεται τον τοπικό cache φάκελο
+# 2. Εγκατάσταση των dependencies (Αυτό θα παραμένει CACHED)
 COPY --chown=jovyan:jovyan requirements.txt .
-RUN --mount=type=cache,target=/home/jovyan/.cache/uv \
-    uv pip install --system -r requirements.txt
+RUN uv pip install --no-cache --system -r requirements.txt
 
-# 3. Αντιγραφή πηγαίου κώδικα
-# Αν αλλάξει κάποιο αρχείο στους παρακάτω φακέλους, το Docker θα ξανατρέξει 
-# μόνο αυτά τα layers, διατηρώντας τα dependencies (Step 2) CACHED.
+# 3. Αντιγραφή μόνο των απαραίτητων πηγών (Αυτό είναι το "έξυπνο" COPY)
+# Αντιγράφουμε κάθε φάκελο ξεχωριστά. Αν αλλάξεις κάτι μέσα στο XAIsnippets,
+# το Docker θα ξανατρέξει μόνο αυτό το layer, αλλά θα κρατήσει το cache των dependencies!
 COPY --chown=jovyan:jovyan scripts/ ./scripts/
 COPY --chown=jovyan:jovyan XAIsnippets/ ./XAIsnippets/
 COPY --chown=jovyan:jovyan notebook_snippets/ ./notebook_snippets/
