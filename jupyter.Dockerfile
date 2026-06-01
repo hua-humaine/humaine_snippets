@@ -29,6 +29,10 @@ WORKDIR /home/jovyan
 # 4. Αναβάθμιση εργαλείων pip
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
+# 5. ΠΡΟ-ΕΓΚΑΤΑΣΤΑΣΗ των "δύσκολων" πακέτων (χωρίς dependencies compilation)
+RUN pip install --no-cache-dir --prefer-binary numpy scipy
+
+
 # 5. Εγκατάσταση όλων των dependencies από το requirements.txt
 # Το --prefer-binary επιτρέπει την εγκατάσταση έτοιμων πακέτων για ταχύτητα
 # ενώ επιτρέπει στο pip να κάνει compile αν κάτι λείπει.
