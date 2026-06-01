@@ -70,9 +70,10 @@ jobs:
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
           docker run --rm \
+            --entrypoint /bin/bash \
             -v $(pwd)/.git:/home/jovyan/.git \
             -e PRE_COMMIT_SHA -e SHA \
             -e KUBEFLOW_URL -e KUBEFLOW_USERNAME -e KUBEFLOW_PASSWORD \
             -e IMAGE_URL \
             ${{ needs.build_and_push.outputs.image_url }} \
-            /bin/bash -c "git config --global --add safe.directory /home/jovyan && chmod +x scripts/deploy_pipeline.sh && ./scripts/deploy_pipeline.sh"
+            -c "git config --global --add safe.directory /home/jovyan && chmod +x scripts/deploy_pipeline.sh && ./scripts/deploy_pipeline.sh"
