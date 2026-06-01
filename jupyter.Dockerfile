@@ -14,7 +14,10 @@ ENV SHELL /bin/bash
 RUN chown -R jovyan /home/jovyan
 USER jovyan
 
-
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
