@@ -21,7 +21,6 @@ RUN uv pip install --no-cache --system -r requirements.txt
 # Αντιγράφουμε κάθε φάκελο ξεχωριστά. Αν αλλάξεις κάτι μέσα στο XAIsnippets,
 # το Docker θα ξανατρέξει μόνο αυτό το layer, αλλά θα κρατήσει το cache των dependencies!
 COPY --chown=jovyan:jovyan scripts/ ./scripts/
-COPY --chown=jovyan:jovyan XAIsnippets/ ./XAIsnippets/
 COPY --chown=jovyan:jovyan notebook_snippets/ ./notebook_snippets/
 
 USER jovyan
