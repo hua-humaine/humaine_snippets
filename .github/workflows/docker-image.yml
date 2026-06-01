@@ -47,21 +47,11 @@ jobs:
   deploy_pipeline:
     needs: build_and_push
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: v1.0.${{github.run_number}}-${{github.sha}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Απαραίτητο για να συγκρίνει το git ιστορικό
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
-        run: pip install kfp python-dotenv
+          fetch-depth: 0
 
       - name: Detect and Submit Changed Pipelines
         env:
@@ -72,8 +62,12 @@ jobs:
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
-          echo "Previous SHA: $PRE_COMMIT_SHA"
-          echo "Current SHA: $SHA"
-          git diff --name-only $PRE_COMMIT_SHA $SHA
-          chmod +x scripts/deploy_pipeline.sh
-          ./scripts/deploy_pipeline.sh
+          # Τρέχουμε το script μέσα από το image μας
+          # Το $(pwd) mount-άρεται στο /home/jovyan για να βλέπει το image τον κώδικα
+          docker run --rm \
+            -v $(pwd):/home/jovyan \
+            -e PRE_COMMIT_SHA -e SHA \
+            -e KUBEFLOW_URL -e KUBEFLOW_USERNAME -e KUBEFLOW_PASSWORD \
+            -e IMAGE_URL \
+            ${{ needs.build_and_push.outputs.image_url }} \
+            /bin/bash -c "chmod +x scripts/deploy_pipeline.sh && ./scripts/deploy_pipeline.sh"
