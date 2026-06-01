@@ -48,6 +48,12 @@ jobs:
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
+
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.1
+        with:
+          cmd: yq --version
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -59,6 +65,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+
 
       - name: Detect and Submit Changed Pipelines
         env:
