@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Python & Environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv/
+.env
+
+# CI/CD & Pipeline Artifacts
+.github
+pipeline_temp.yaml
+pipeline.yaml
+.pytest_cache/
+
+# Data & Models
+# Αν θέλεις να κρατάς τα μοντέλα έξω από το image
+models/
+data/
+*.pkl
+*.joblib
+
+# Logs & Temporary files
+*.log
+*.tmp
+temp/
+
+# IDE files (προαιρετικά)
+.vscode/
+.idea/
+.DS_Store
