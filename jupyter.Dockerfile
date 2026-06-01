@@ -22,24 +22,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Προετοιμασία περιβάλλοντος για τον χρήστη jovyan
+# 3. Προετοιμασία περιβάλλοντος
 USER jovyan
 WORKDIR /home/jovyan
 
 # 4. Αναβάθμιση εργαλείων pip
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# 5. Εγκατάσταση σταθερών πακέτων από το αρχείο (cache layer)
-COPY --chown=jovyan:jovyan requirements_stable.txt .
-RUN pip install --no-cache-dir --prefer-binary -r requirements_stable.txt
-
-# 6. Εγκατάσταση δυναμικών πακέτων hardcoded (upgrade mode)
-# Εδώ θα βάζεις τα πακέτα που θέλεις να αναβαθμίζονται σε κάθε build
-RUN pip install --no-cache-dir --upgrade --prefer-binary \
-    shap \
-    pycaret \
-    xgboost \
-    scikit-learn
+# 5. Εγκατάσταση όλων των dependencies από το requirements.txt
+# Το --prefer-binary επιτρέπει την εγκατάσταση έτοιμων πακέτων για ταχύτητα
+# ενώ επιτρέπει στο pip να κάνει compile αν κάτι λείπει.
+COPY --chown=jovyan:jovyan requirements.txt .
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # Τελικό user setting για ασφάλεια
 USER jovyan
