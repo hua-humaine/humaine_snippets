@@ -64,6 +64,8 @@ jobs:
           KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
           PRE_COMMIT_SHA: ${{github.event.before}}
           SHA: ${{github.sha}}
+          KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
+          KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
           chmod +x scripts/deploy_pipeline.sh
           ./scripts/deploy_pipeline.sh
