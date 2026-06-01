@@ -22,7 +22,7 @@ jobs:
       run: | 
         URL="ghcr.io/${{ github.repository }}:v1.0.${{(github.run_number)}}-${{github.sha}}"
         echo "IMAGE_URL=$URL" >> $GITHUB_ENV
-        GITHUB_OUTPUT="image_url=$URL" >> $GITHUB_OUTPUT
+        echo "image_url=$URL" >> $GITHUB_OUTPUT
 
     - name: Log in to the GitHub Container Registry
       uses: docker/login-action@v3
