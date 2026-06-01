@@ -37,7 +37,7 @@ RUN pip install --no-cache-dir --prefer-binary numpy scipy
 # Το --prefer-binary επιτρέπει την εγκατάσταση έτοιμων πακέτων για ταχύτητα
 # ενώ επιτρέπει στο pip να κάνει compile αν κάτι λείπει.
 COPY --chown=jovyan:jovyan requirements.txt .
-RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+RUN pip install --use-pep517 --no-cache-dir --prefer-binary -r requirements.txt
 
 RUN pip install --no-cache-dir --prefer-binary scikit-learn
 

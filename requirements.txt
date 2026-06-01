@@ -13,5 +13,5 @@ joblib==1.3
 openai>=1.10.0
 python-dotenv>=1.0.0
 shap
-pycaret
+pycaret>=3.3.0
 xgboost
