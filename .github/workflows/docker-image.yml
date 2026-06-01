@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./jupyter.Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}:v1.0.${{(github.run_number)}}  // commit id
+        tags: ghcr.io/${{ github.repository }}:v1.0.${{(github.run_number)}}:${{github.sha}} 
 
   deploy_pipeline:
     needs: build_and_push
