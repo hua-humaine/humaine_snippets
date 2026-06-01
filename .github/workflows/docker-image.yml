@@ -72,5 +72,8 @@ jobs:
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
+          echo "Previous SHA: $PRE_COMMIT_SHA"
+          echo "Current SHA: $SHA"
+          git diff --name-only $PRE_COMMIT_SHA $SHA
           chmod +x scripts/deploy_pipeline.sh
           ./scripts/deploy_pipeline.sh
