@@ -48,16 +48,16 @@ jobs:
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
-
-      - name: Install yq
-        uses: mikefarah/yq@v4.44.1
-        with:
-          cmd: yq --version
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # 1. Εγκατάσταση του yq στον runner
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.1
+        with:
+          cmd: yq --version
 
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v3
@@ -66,20 +66,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-
-
+      # 2. Εκτέλεση του deployment με το σωστό mount για το yq
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
           KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
-          PRE_COMMIT_SHA: ${{github.event.before}}
-          SHA: ${{github.sha}}
+          PRE_COMMIT_SHA: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
+          YQ_PATH=$(which yq)
           docker run --rm \
             --entrypoint /bin/bash \
             -v $(pwd)/.git:/home/jovyan/.git \
+            -v $YQ_PATH:/usr/bin/yq \
             -e PRE_COMMIT_SHA -e SHA \
             -e KUBEFLOW_URL -e KUBEFLOW_USERNAME -e KUBEFLOW_PASSWORD \
             -e IMAGE_URL \
