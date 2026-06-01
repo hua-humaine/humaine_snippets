@@ -62,7 +62,6 @@ jobs:
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
           KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
-          KUBEFLOW_TOKEN: ${{ secrets.KUBEFLOW_TOKEN }}
           PRE_COMMIT_SHA: ${{github.event.before}}
           SHA: ${{github.sha}}
         run: |
