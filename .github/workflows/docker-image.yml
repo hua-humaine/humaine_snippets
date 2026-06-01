@@ -38,6 +38,8 @@ jobs:
         file: ./jupyter.Dockerfile
         push: true
         tags: ${{ env.IMAGE_URL }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   deploy_pipeline:
     needs: build_and_push
