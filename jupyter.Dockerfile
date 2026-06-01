@@ -27,13 +27,12 @@ USER jovyan
 WORKDIR /home/jovyan
 
 # 4. Αναβάθμιση εργαλείων pip
-# Αυτό τρέχει πρώτο για να έχουμε τα τελευταία εργαλεία εγκατάστασης
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # 5. Αντιγραφή requirements.txt και εγκατάσταση πακέτων
-# Το COPY πρέπει να προηγείται του pip install -r
+# Το --prefer-binary επιτρέπει στο lime να γίνει install κανονικά
 COPY --chown=jovyan:jovyan requirements.txt .
-RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # Τελικό user setting για ασφάλεια
 USER jovyan
