@@ -19,6 +19,6 @@ COPY --chown=jovyan:jovyan requirements.txt .
 RUN uv pip install --no-cache --system -r requirements.txt
 
 # Αντιγραφή όλου του κώδικα μέσα στο image
-COPY --chown=jovyan:jovyan . .
+# COPY --chown=jovyan:jovyan . .
 
 USER jovyan
