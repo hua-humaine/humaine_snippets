@@ -167,24 +167,24 @@ class KFPClientManager:
         """Get a newly authenticated Kubeflow Pipelines client."""
         return self._create_kfp_client()
 
-HOST = 'https://<IP OR DOMAIN NAME /pipeline'
-USERNAME = "YOUR_USERNAME"
-PASSWORD = "YOUR_PWD"
-NAMESPACE = "YOUR_NAMESPACE"
+# HOST = 'https://<IP OR DOMAIN NAME /pipeline'
+# USERNAME = "YOUR_USERNAME"
+# PASSWORD = "YOUR_PWD"
+# NAMESPACE = "YOUR_NAMESPACE"
 
-kfp_client_manager = KFPClientManager(
-    api_url=HOST,
-    skip_tls_verify=True,
-    dex_username=USERNAME,
-    dex_password=PASSWORD,
-    # can be 'ldap' or 'local' depending on your Dex configuration
-    dex_auth_type="local",
-)
+# kfp_client_manager = KFPClientManager(
+#     api_url=HOST,
+#     skip_tls_verify=True,
+#     dex_username=USERNAME,
+#     dex_password=PASSWORD,
+#     # can be 'ldap' or 'local' depending on your Dex configuration
+#     dex_auth_type="local",
+# )
 
-# get a newly authenticated KFP client
-# TIP: long-lived sessions might need to get a new client when their session expires
-kfp_client = kfp_client_manager.create_kfp_client()
+# # get a newly authenticated KFP client
+# # TIP: long-lived sessions might need to get a new client when their session expires
+# kfp_client = kfp_client_manager.create_kfp_client()
 
-# test the client by listing experiments
-experiments = kfp_client.list_experiments(namespace=NAMESPACE)
-print(experiments)
+# # test the client by listing experiments
+# experiments = kfp_client.list_experiments(namespace=NAMESPACE)
+# print(experiments)
