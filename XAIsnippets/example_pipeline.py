@@ -15,7 +15,7 @@ def run_simple_pipeline():
     # 2. Εκπαίδευση μοντέλου
     clf = RandomForestClassifier()
     clf.fit(X, y)
-    print("Model Trained successfully!!")
+    print("Model Trained successfully!")
     
     # 3. Save model
     os.makedirs('models', exist_ok=True)
