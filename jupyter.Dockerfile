@@ -15,7 +15,7 @@ ENV SHELL=/bin/bash
 
 RUN chown -R jovyan /home/jovyan
 
-# 2. Εγκατάσταση συστημικών εργαλείων (build-essential για C++ compilers)
+# 2. Εγκατάσταση συστημικών εργαλείων
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
@@ -29,10 +29,17 @@ WORKDIR /home/jovyan
 # 4. Αναβάθμιση εργαλείων pip
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# 5. Αντιγραφή requirements.txt και εγκατάσταση πακέτων
-# Το --prefer-binary επιτρέπει στο lime να γίνει install κανονικά
-COPY --chown=jovyan:jovyan requirements.txt .
-RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+# 5. Εγκατάσταση σταθερών πακέτων από το αρχείο (cache layer)
+COPY --chown=jovyan:jovyan requirements_stable.txt .
+RUN pip install --no-cache-dir --prefer-binary -r requirements_stable.txt
+
+# 6. Εγκατάσταση δυναμικών πακέτων hardcoded (upgrade mode)
+# Εδώ θα βάζεις τα πακέτα που θέλεις να αναβαθμίζονται σε κάθε build
+RUN pip install --no-cache-dir --upgrade --prefer-binary \
+    shap \
+    pycaret \
+    xgboost \
+    scikit-learn
 
 # Τελικό user setting για ασφάλεια
 USER jovyan
