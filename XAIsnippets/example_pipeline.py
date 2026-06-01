@@ -1,38 +1,23 @@
 from kfp import dsl
-import pandas as pd
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
-import joblib
-import os
 
-@dsl.pipeline(
-    name='simple-training-pipeline',
-    description='A simple test pipelin!e'
-)
-def run_simple_pipeline():
-    print("--- Pipeline Started ---")
-    
-    # 1. Δημιουργία dummy data
-    X, y = make_classification(n_samples=100, n_features=4)
-    df = pd.DataFrame(X, columns=['f1', 'f2', 'f3', 'f4'])
-    print(f"Data Loaded: {df.shape}")
-    
-    # 2. Εκπαίδευση μοντέλου
-    clf = RandomForestClassifier()
-    clf.fit(X, y)
-    print("Model Trained successfully!!")
-    
-    # 3. Save model
-    os.makedirs('models', exist_ok=True)
-    joblib.dump(clf, 'models/test_model.pkl')
-    print("Model saved to /models/test_model.pkl")
-    
-    print("--- Pipeline Finished Successfully ---")
+@dsl.component
+def train_model_op():
+    import pandas as pd
+    from sklearn.datasets import make_classification
+    # ... ο κώδικας σου ...
+    print("Training component running...")
+
+@dsl.pipeline(name='generic-training-pipeline')
+def my_pipeline(image_tag: str): # <--- Περνάμε το image ως παράμετρο
+    # Χρησιμοποιούμε το container_spec για να ορίσουμε το image δυναμικά
+    train_task = train_model_op()
+    train_task.set_image(image_tag) 
 
 if __name__ == "__main__":
-    # Αυτό το χρειαζόμαστε για να το κάνουμε compile σε YAML
     from kfp import compiler
+    # Κατά το compile, δεν μας νοιάζει το image, 
+    # θα το δώσουμε στο Kubeflow την ώρα του submission!
     compiler.Compiler().compile(
-        pipeline_func=run_simple_pipeline,
-        package_path='pipeline_temp.yaml'
+        pipeline_func=my_pipeline,
+        package_path='pipeline.yaml'
     )
