@@ -33,6 +33,7 @@ for FILE in $PIPELINES_TO_RUN; do
         --password "$KUBEFLOW_PASSWORD" \
         --pipeline-name "$PIPELINE_NAME" \
         --namespace "kubeflow-user-example-com"  # TODO: Dynamically get user namespace
+
         
     # 5. Καθαρισμός
     rm -f pipeline_temp.yaml
