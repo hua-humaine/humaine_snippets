@@ -1,50 +1,84 @@
 import argparse
 import os
 import sys
+import requests
 import kfp
 from kfp_server_api.exceptions import ApiException
 
-# Path setup
-sys.path.append(os.path.abspath("notebook_snippets"))
-from KubeflowPipelineAPIConnector_New_version_cleaned import KFPClientManager 
-
-def get_client(url, username, password):
-    """Factory function for KFP client creation."""
-    manager = KFPClientManager(
-        api_url=url,
-        dex_username=username,
-        dex_password=password,
-        dex_auth_type="local",
-        skip_tls_verify=True
-    )
-    return manager.create_kfp_client()
-
-def submit_pipeline(file_name, url, image, username, password):
-    print(f"DEBUG: KFP SDK {kfp.__version__} | Target: {url}")
-    client = get_client(url, username, password)
-    
-    # Επιλογή στρατηγικής βάσει έκδοσης
-    is_v2 = kfp.__version__.startswith("2.")
+def get_authenticated_client(url, username, password, namespace):
+    """Αυθεντικοποίηση μέσω Dex και δημιουργία KFP Client."""
+    # Αφαιρούμε το / στο τέλος αν υπάρχει, για να χτίσουμε σωστά τα paths
+    base_url = url.rstrip('/') 
+    session = requests.Session()
     
     try:
-        if is_v2:
-            print("Submitting via KFP v2 logic...")
-            client.create_run_from_pipeline_package(
-                pipeline_file=file_name,
-                arguments={"container_image": image},
-                experiment_name='Default'
+        print(f"Authenticating to {base_url}...")
+        response = session.get(base_url)
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {"login": username, "password": password}
+        session.post(response.url, headers=headers, data=data)
+        
+        if "authservice_session" not in session.cookies:
+            print("Error: Αποτυχία Authentication. Ελέγξτε τα credentials.")
+            sys.exit(1)
+            
+        session_cookie = session.cookies.get_dict()["authservice_session"]
+        print("Authentication successful!")
+        
+        # Δημιουργία και επιστροφή του Client για το KFP v2
+        return kfp.Client(
+            host=f"{base_url}/pipeline",
+            cookies=f"authservice_session={session_cookie}",
+            namespace=namespace,
+        )
+    except Exception as e:
+        print(f"Σφάλμα σύνδεσης: {e}")
+        sys.exit(1)
+
+def submit_pipeline(file_name, url, image, username, password, namespace, pipeline_name):
+    print(f"DEBUG: KFP SDK {kfp.__version__} | Target: {url}")
+    
+    if not os.path.exists(file_name):
+        print(f"Error: Το αρχείο YAML '{file_name}' δεν βρέθηκε.")
+        sys.exit(1)
+
+    client = get_authenticated_client(url, username, password, namespace)
+    
+    try:
+        # 1. UPSERT ΛΟΓΙΚΗ (Ανανέωση ή Δημιουργία του Pipeline Definition)
+        print(f"\n--- Upserting Pipeline: {pipeline_name} ---")
+        pipelines = client.list_pipelines(page_size=100)
+        pipeline_id = None
+        
+        if pipelines.pipelines:
+            for p in pipelines.pipelines:
+                if p.name == pipeline_name:
+                    pipeline_id = p.id
+        
+        if pipeline_id:
+            print(f"Βρέθηκε υπάρχον pipeline (ID: {pipeline_id}). Uploading νέας έκδοσης...")
+            client.upload_pipeline_version(
+                pipeline_package_path=file_name,
+                pipeline_version_name="v-latest",
+                pipeline_id=pipeline_id
             )
         else:
-            print("Submitting via KFP v1 (Legacy) logic...")
-            # Upload first to avoid complex package parsing in v1
-            pipeline = client.upload_pipeline(pipeline_package_path=file_name)
-            client.create_run_from_pipeline_id(
-                pipeline_id=pipeline.id,
-                experiment_name='Default',
-                arguments={"container_image": image}
+            print(f"Δεν βρέθηκε το pipeline. Δημιουργία νέου: {pipeline_name}...")
+            client.upload_pipeline(
+                pipeline_package_path=file_name, 
+                pipeline_name=pipeline_name
             )
-        print("Pipeline submitted successfully.")
-        
+
+        # 2. RUN ΛΟΓΙΚΗ (Εκτέλεση του Pipeline)
+        print(f"\n--- Submitting Run ---")
+        client.create_run_from_pipeline_package(
+            pipeline_file=file_name,
+            arguments={"container_image": image} if image else {},
+            experiment_name='Default',
+            pipeline_name=pipeline_name
+        )
+        print("Pipeline run submitted successfully!")
+
     except ApiException as e:
         print(f"API Error {e.status}: {e.reason}\nBody: {e.body}")
         sys.exit(1)
@@ -53,9 +87,29 @@ def submit_pipeline(file_name, url, image, username, password):
         sys.exit(1)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    for arg in ["file", "image", "url", "username", "password"]:
-        parser.add_argument(f"--{arg}", required=True)
+    parser = argparse.ArgumentParser(description="Upload and Submit KFP Pipeline")
+    
+    # Απαραίτητες παράμετροι
+    parser.add_argument("--file", required=True, help="Path to the compiled YAML file")
+    parser.add_argument("--url", required=True, help="Base URL of Kubeflow")
+    parser.add_argument("--username", required=True, help="Dex Username")
+    parser.add_argument("--password", required=True, help="Dex Password")
+    
+    # Νέες απαραίτητες παράμετροι για το cluster σου
+    parser.add_argument("--namespace", required=True, help="The Kubeflow user namespace")
+    parser.add_argument("--pipeline-name", required=True, help="Name of the pipeline in UI")
+    
+    # Προαιρετική παράμετρος (αν το pipeline σου δεν παίρνει image ως input, δεν θα "σκάσει")
+    parser.add_argument("--image", required=False, help="Container image tag (optional)")
+    
     args = parser.parse_args()
 
-    submit_pipeline(args.file, args.url, args.image, args.username, args.password)
+    submit_pipeline(
+        file_name=args.file, 
+        url=args.url, 
+        image=args.image, 
+        username=args.username, 
+        password=args.password,
+        namespace=args.namespace,
+        pipeline_name=args.pipeline_name
+    )
