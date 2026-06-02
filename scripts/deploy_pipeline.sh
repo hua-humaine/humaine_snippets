@@ -43,8 +43,8 @@ for FILE in $PIPELINES_TO_RUN; do
         --username "$KUBEFLOW_USERNAME" \
         --password "$KUBEFLOW_PASSWORD" \
         --pipeline-name "$PIPELINE_NAME" \
-        --namespace "kubeflow-user-example-com"  // TODO: Get namespace dynamically
-    
+        --namespace "kubeflow-user-example-com"  #TODO: Get namespace dynamically
+
     # 5. Καθαρισμός
     rm -f pipeline_temp.yaml
     echo "Finished processing $FILE"
