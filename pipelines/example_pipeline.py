@@ -7,7 +7,7 @@ def train_model_op():
     import pandas as pd
     from sklearn.datasets import make_classification
     # ... ο κώδικας σου ...
-    print("Training component running...")
+    print("Training component running..")
 
 @dsl.pipeline(name='generic-training-pipeline-entry')
 def my_pipeline(): 
