@@ -53,20 +53,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 1. Εγκατάσταση του yq στον runner
-      - name: Install yq
-        uses: mikefarah/yq@v4.44.1
-        with:
-          cmd: yq --version
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Εγκαθιστούμε kfp και pyyaml για να μπορεί το script να κάνει edit το YAML
+          pip install kfp==2.16.1 pyyaml 
 
-      - name: Log in to the GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # 2. Εκτέλεση του deployment με το σωστό mount για το yq
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
@@ -74,31 +66,21 @@ jobs:
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
-          # 1. Βρίσκουμε τα αλλαγμένα αρχεία ΕΞΩ από το container
+          # 1. Βρίσκουμε τα αλλαγμένα αρχεία
           PRE_COMMIT_SHA=${{ github.event.before }}
           SHA=${{ github.sha }}
           
-          # Ασφάλεια για το πρώτο commit
           if [ -z "$PRE_COMMIT_SHA" ] || [ "$PRE_COMMIT_SHA" == "0000000000000000000000000000000000000000" ]; then
             CHANGED_FILES=$(git ls-files)
           else
             CHANGED_FILES=$(git diff --name-only $PRE_COMMIT_SHA $SHA || git ls-files)
           fi
           
-          echo "Changed files detected on host: $CHANGED_FILES"
+          export CHANGED_FILES
+          echo "Changed files: $CHANGED_FILES"
           
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No files changed, skipping deploy."
-            exit 0
-          fi
+          if [ -z "$CHANGED_FILES" ]; then exit 0; fi
 
-          # 2. Τρέχουμε το script περνώντας τα CHANGED_FILES ως μεταβλητή
-          YQ_PATH=$(which yq)
-          docker run --rm \
-            --entrypoint /bin/bash \
-            -v $YQ_PATH:/usr/bin/yq \
-            -e KUBEFLOW_URL -e KUBEFLOW_USERNAME -e KUBEFLOW_PASSWORD \
-            -e IMAGE_URL \
-            -e CHANGED_FILES="$CHANGED_FILES" \
-            ${{ needs.build_and_push.outputs.image_url }} \
-            -c "chmod +x scripts/deploy_pipeline.sh && ./scripts/deploy_pipeline.sh"
+          # 2. Τρέχουμε το script απευθείας στον runner
+          chmod +x scripts/deploy_pipeline.sh
+          ./scripts/deploy_pipeline.sh
