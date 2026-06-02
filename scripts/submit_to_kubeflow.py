@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import time
 import requests
 import kfp
 from kfp_server_api.exceptions import ApiException
@@ -47,19 +48,19 @@ def submit_pipeline(file_name, url, image, username, password, namespace, pipeli
     try:
         # 1. UPSERT ΛΟΓΙΚΗ (Ανανέωση ή Δημιουργία του Pipeline Definition)
         print(f"\n--- Upserting Pipeline: {pipeline_name} ---")
-        pipelines = client.list_pipelines(page_size=100)
-        pipeline_id = None
         
-        if pipelines.pipelines:
-            for p in pipelines.pipelines:
-                if p.name == pipeline_name:
-                    pipeline_id = p.id
+        # Η get_pipeline_id είναι η πιο ασφαλής μέθοδος του KFP SDK
+        pipeline_id = client.get_pipeline_id(pipeline_name)
+        
+        # Δημιουργούμε ένα δυναμικό όνομα έκδοσης (π.χ. v-171542123) 
+        # για να αποφύγουμε version name conflicts στα συνεχόμενα CI/CD runs
+        version_name = f"v-{int(time.time())}" 
         
         if pipeline_id:
-            print(f"Βρέθηκε υπάρχον pipeline (ID: {pipeline_id}). Uploading νέας έκδοσης...")
+            print(f"Βρέθηκε υπάρχον pipeline (ID: {pipeline_id}). Uploading νέας έκδοσης ({version_name})...")
             client.upload_pipeline_version(
                 pipeline_package_path=file_name,
-                pipeline_version_name="v-latest",
+                pipeline_version_name=version_name,
                 pipeline_id=pipeline_id
             )
         else:
