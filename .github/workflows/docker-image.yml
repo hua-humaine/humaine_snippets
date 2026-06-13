@@ -32,7 +32,7 @@ jobs:
         
         # Create a "locked" file to ensure deterministic builds in Docker
         # while keeping the original requirements.txt clean in Git
-        uv pip compile --upgrade-package numpy --resolver=backtracking --generate-hashes requirements.txt -o requirements.txt.locked
+        uv pip compile --upgrade-package numpy --resolver=backtracking requirements.txt -o requirements.txt.locked
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
