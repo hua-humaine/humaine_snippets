@@ -4,44 +4,47 @@ import os
 
 # Retrieve KFP version from environment, defaulting to 1 if not specified.
 # This allows the script to adapt its injection strategy based on the cluster version.
-kfp_version = int(os.environ.get('KFP_VERSION', 1))
-
+kfp_version = int(os.environ.get('KFP_VERSION'))
+# Στο main()
+print(f"[DEBUG] KFP_VERSION detected: {kfp_version}")
 class KFPImageInjector(ast.NodeTransformer):
     def __init__(self, target_image, version):
         self.target_image = target_image
         self.version = version
 
     def visit_Call(self, node):
-        # 1. Identify if it is a @component decorator
         is_component = (isinstance(node.func, ast.Attribute) and node.func.attr == 'component') or \
                        (isinstance(node.func, ast.Name) and node.func.id == 'component')
         
         if is_component:
             should_inject = True
-            cleaned_keywords = []
+            # Use list comprehension to have only the right keywords
+            # This is more secure than manually building the list
+            node.keywords = [kw for kw in node.keywords if kw.arg not in ('base_image', 'target_image', 'humaineImage')]
 
-            # Examine arguments
+            # Check for the humaineImage flag
+            for kw in node.keywords:
+                pass 
+            
+            new_keywords = []
+            should_inject = True
+            
             for kw in node.keywords:
                 if kw.arg == 'humaineImage':
-                    # Check the flag value
                     if isinstance(kw.value, ast.Constant) and kw.value.value is False:
                         should_inject = False
-                    # IMPORTANT: We do NOT append 'humaineImage' to cleaned_keywords,
-                    # effectively removing it from the generated code.
                 else:
-                    cleaned_keywords.append(kw)
-
-            # 2. Inject base_image if allowed (KFP v2 logic)
+                    new_keywords.append(kw)
+            
+            # Injection only if version >= 2
             if should_inject and self.version >= 2:
-                # Remove existing base_image to avoid duplicates
-                cleaned_keywords = [kw for kw in cleaned_keywords if kw.arg not in ('base_image', 'target_image')]
-                cleaned_keywords.append(ast.keyword(
+                print(f"[DEBUG] Injecting base_image={self.target_image}")
+                new_keywords.append(ast.keyword(
                     arg='base_image', 
                     value=ast.Constant(value=self.target_image)
                 ))
             
-            # Update node keywords (this removes 'humaineImage' and adds 'base_image')
-            node.keywords = cleaned_keywords
+            node.keywords = new_keywords
             node._should_inject = should_inject
 
         self.generic_visit(node)
