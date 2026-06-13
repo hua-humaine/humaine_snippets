@@ -8,7 +8,7 @@ def train_model_op():
     import pandas as pd
     from sklearn.datasets import make_classification
     # ... code ...
-    print("Training component running..")
+    print("Training component running...")
 
 @dsl.pipeline(name='pipeline-without-compiler-and-humaine-image')
 def my_pipeline(): 
