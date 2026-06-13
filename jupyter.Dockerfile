@@ -1,5 +1,5 @@
 # 1. Base image
-FROM python:3.14-slim
+FROM python:3.11-slim
 
 # Installing tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
