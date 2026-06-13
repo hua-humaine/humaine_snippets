@@ -68,6 +68,10 @@ jobs:
           # Install kfp και pyyaml in order for the script to create YAML files
           pip install kfp==2.16.1 pyyaml 
 
+      - name: Debug KFP Client
+        run: |
+          python3 -c "from kfp import client; c = client.Client(host='http://hua-kubeflow.ddns.net'); print(f'Current Namespace: {c.get_default_experiment_id()}')"
+
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
