@@ -10,43 +10,40 @@ class KFPImageInjector(ast.NodeTransformer):
         self.target_image = target_image
 
     def visit_Call(self, node):
-        """
-        Visits function calls to identify KFP @component decorators 
-        and modify their keyword arguments.
-        """
-        # Identify if the call is a @component decorator
         is_component = (isinstance(node.func, ast.Attribute) and node.func.attr == 'component') or \
                        (isinstance(node.func, ast.Name) and node.func.id == 'component')
         
         if is_component:
             should_inject = True
             new_keywords = []
+            original_base_image = None # Save Humaine base_image
 
-            # Process existing keyword arguments
             for kw in node.keywords:
                 if kw.arg == 'humaineImage':
-                    # If humaineImage flag is explicitly False, skip injection
                     if isinstance(kw.value, ast.Constant) and kw.value.value is False:
                         should_inject = False
-                    # Remove 'humaineImage' from the final arguments list
-                elif kw.arg in ('base_image', 'target_image'):
-                    # Skip existing base_image to avoid duplicates
+                elif kw.arg == 'base_image':
+                    # Save the original base_image to avoid losing it
+                    original_base_image = kw
+                elif kw.arg == 'target_image':
                     continue
                 else:
                     new_keywords.append(kw)
 
-            # Inject the new base_image if allowed
+            # Logic:
             if should_inject:
-                print(f"[DEBUG] Injecting base_image={self.target_image}")
+                print(f"[INFO] Injecting Humaine base_image={self.target_image}")
                 new_keywords.append(ast.keyword(
                     arg='base_image', 
                     value=ast.Constant(value=self.target_image)
                 ))
+            else:
+                print(f"[INFO] Skipping injection, keeping original base_image.")
+                if original_base_image:
+                    new_keywords.append(original_base_image)
             
-            # Apply modified keyword list back to the node
             node.keywords = new_keywords
 
-        # Continue traversing the AST
         self.generic_visit(node)
         return node
 

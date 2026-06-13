@@ -14,7 +14,7 @@ for FILE in $PIPELINES_TO_RUN; do
     
     # 1. Image Injection: Creation of temporary Python file with the injected image
     TEMP_PY_FILE="${FILE}_temp_injected.py"
-    echo "Injecting image $IMAGE_URL into Python AST (respecting humaineImage flag)..."
+    echo "Processing image $IMAGE_URL into Python AST (respecting humaineImage flag)..."
     python scripts/inject_image.py "$FILE" "$TEMP_PY_FILE" "$IMAGE_URL"
     
     # 2. Compile: Execute the pipeline file directly.
