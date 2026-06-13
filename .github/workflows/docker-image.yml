@@ -63,21 +63,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect Kubeflow Version and Install SDK
-        run: |
-          echo "Checking Kubeflow version at ${{ secrets.KUBEFLOW_URL }}..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.KUBEFLOW_URL }}/apis/v2beta1/pipelines || echo "404")
-          
-          if [ "$HTTP_CODE" == "200" ]; then
-            echo "Kubeflow v2 detected."
-            pip install kfp>=2.0.0 pyyaml
-            echo "KFP_VERSION=2" >> $GITHUB_ENV
-          else
-            echo "Kubeflow v1 detected (or unreachable)."
-            pip install kfp==1.8.22 pyyaml
-            echo "KFP_VERSION=1" >> $GITHUB_ENV
-          fi
-
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
