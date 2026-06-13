@@ -1,28 +1,28 @@
-# 1. Base image (Python 3.9)
-FROM python:3.9-slim
+# 1. Base image
+FROM python:3.14-slim
 
-# Εγκατάσταση απαραίτητων εργαλείων
+# Installing tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Δημιουργία του χρήστη jovyan με UID 1000
+# 2. Creation of user jovyan with UID 1000
 RUN groupadd -g 1000 jovyan && \
     useradd -u 1000 -g jovyan -m -d /home/jovyan -s /bin/bash jovyan
 
-# 3. Ορισμός φακέλου εργασίας
+# 3. Working directory
 WORKDIR /home/jovyan
 
-# 4. Εγκατάσταση των dependencies με PIP
+# 4.Installing dependencies with PIP
 COPY --chown=jovyan:jovyan requirements.txt .
 RUN  pip install --no-cache-dir -r requirements.txt
 
-# 5. Αντιγραφή πηγών με τα σωστά permissions
+# 5. Copying sources with right permissions
 COPY --chown=jovyan:jovyan scripts/ ./scripts/
 COPY --chown=jovyan:jovyan notebook_snippets/ ./notebook_snippets/
 COPY --chown=jovyan:jovyan pipelines/ ./pipelines/
 COPY --chown=jovyan:jovyan src/ ./src/
 
-# 6. Εναλλαγή στον χρήστη jovyan
+# 6. Switch to jovyan
 USER jovyan
