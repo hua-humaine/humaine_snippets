@@ -17,15 +17,16 @@ for FILE in $PIPELINES_TO_RUN; do
     echo "Injecting image $IMAGE_URL into Python AST (respecting humaineImage flag)..."
     python scripts/inject_image.py "$FILE" "$TEMP_PY_FILE" "$IMAGE_URL"
     
-    # 2. Compile: We check and run compilation on the temporary file
-    if python scripts/check_compile.py "$TEMP_PY_FILE"; then
-        echo "Detected native compile() call. Running directly..."
-        python "$TEMP_PY_FILE"
-    else
-        echo "No compile logic found. Compiling dynamically via kfp CLI..."
-        kfp pipeline compile --py "$TEMP_PY_FILE" --function pipeline --output pipeline_temp.yaml
-    fi
+    # 2. Compile: Execute the pipeline file directly.
+    # The file itself contains the logic to compile to 'pipeline_temp.yaml'
+    echo "Compiling pipeline via self-execution..."
+    python3 "$TEMP_PY_FILE"
     
+    if [ ! -f "pipeline_temp.yaml" ]; then
+        echo "Error: Compilation failed. pipeline_temp.yaml was not generated."
+        exit 1
+    fi
+
     echo "Successfully generated pipeline_temp.yaml"
     
     # 3. Dynamic Name Extraction: We read the pipeline name from the generated YAML
