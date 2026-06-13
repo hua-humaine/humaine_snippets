@@ -18,36 +18,41 @@ for FILE in $PIPELINES_TO_RUN; do
     python scripts/inject_image.py "$FILE" "$TEMP_PY_FILE" "$IMAGE_URL"
     
     # 2. Compile: Execute the pipeline file directly.
-    # The file itself contains the logic to compile to 'pipeline_temp.yaml'
     echo "Compiling pipeline via self-execution..."
     python3 "$TEMP_PY_FILE"
     
-    if [ ! -f "pipeline_temp.yaml" ]; then
-        echo "Error: Compilation failed. pipeline_temp.yaml was not generated."
+    # 3. Submit: Iterate through ANY .yaml file created in this directory
+    GENERATED_YAMLs=$(ls *.yaml 2>/dev/null || true)
+    
+    if [ -z "$GENERATED_YAMLs" ]; then
+        echo "Error: No YAML files were generated."
         exit 1
     fi
 
-    echo "Successfully generated pipeline_temp.yaml"
-    
-    # 3. Dynamic Name Extraction: We read the pipeline name from the generated YAML
-    PIPELINE_NAME=$(python -c "import yaml; print(yaml.safe_load(open('pipeline_temp.yaml'))['pipelineInfo']['name'])")
-    echo "Detected pipeline name from YAML: $PIPELINE_NAME"
-    
-    # 4. Submit: We submit the YAML to Kubeflow
-    echo "Submitting pipeline as: $PIPELINE_NAME"
-    python scripts/submit_to_kubeflow.py  \
-        --file pipeline_temp.yaml \
-        --url "$KUBEFLOW_URL" \
-        --username "$KUBEFLOW_USERNAME" \
-        --password "$KUBEFLOW_PASSWORD" \
-        --pipeline-name "$PIPELINE_NAME" \
-        --image "$IMAGE_URL" \
-        --namespace "kubeflow-user-example-com" # TODO: DYNAMIC USER NAMESPACE
+    for YAML_FILE in $GENERATED_YAMLs; do
+        echo "Found pipeline artifact: $YAML_FILE"
         
-    # 5. Cleanup: We remove the temporary files to keep the environment clean
-    rm -f pipeline_temp.yaml
-    rm -f "$TEMP_PY_FILE"
+        # Extract name dynamically
+        PIPELINE_NAME=$(python -c "import yaml; print(yaml.safe_load(open('$YAML_FILE'))['pipelineInfo']['name'])")
+        echo "Submitting $PIPELINE_NAME from $YAML_FILE..."
+        
+        # 4. Submit
+        python scripts/submit_to_kubeflow.py \
+            --file "$YAML_FILE" \
+            --url "$KUBEFLOW_URL" \
+            --username "$KUBEFLOW_USERNAME" \
+            --password "$KUBEFLOW_PASSWORD" \
+            --pipeline-name "$PIPELINE_NAME" \
+            --image "$IMAGE_URL" \
+            --namespace "kubeflow-user-example-com"
+            
+        # 5. Cleanup individual file
+        rm -f "$YAML_FILE"
+    done
     
+    # Cleanup injection file
+    rm -f "$TEMP_PY_FILE"
+
     echo "Finished processing $FILE"
     echo "-----------------------------------"
 done

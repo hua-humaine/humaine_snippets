@@ -1,7 +1,7 @@
 import os
 from kfp import dsl
 
-# Example pipeline code that does NOT have COMPILER and does NOT want to use Humaine Image (humaineImage=false)
+# Example pipeline code that does NOT want to use Humaine Image (humaineImage=false)
 
 @dsl.component(base_image="python:3.13-slim", humaineImage=False)
 def train_model_op():

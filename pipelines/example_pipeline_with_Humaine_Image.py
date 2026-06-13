@@ -1,7 +1,7 @@
 import os
 from kfp import dsl
 
-# Example pipeline code that has COMPILER and wants to use Humaine Image (humaineImage=true by default)
+# Example pipeline code that wants to use Humaine Image (humaineImage=true by default)
 
 @dsl.component(base_image="python:3.13-slim")
 def train_model_op():
