@@ -77,11 +77,6 @@ jobs:
             pip install kfp==1.8.22 pyyaml
           fi
 
-      - name: Debug KFP Client
-        run: |
-          # Verify SDK installation
-          python3 -c "from kfp import client; print('SDK installed successfully!')"
-
       - name: Detect and Submit Changed Pipelines
         env:
           IMAGE_URL: ${{ needs.build_and_push.outputs.image_url }}
