@@ -8,7 +8,6 @@ from kfp_server_api.exceptions import ApiException
 
 def get_authenticated_client(url, username, password, namespace):
     """Authenticate via Dex and create a KFP Client instance."""
-    # Remove trailing slash if present to properly construct URL paths
     base_url = url.rstrip('/') 
     session = requests.Session()
     
@@ -35,8 +34,8 @@ def get_authenticated_client(url, username, password, namespace):
         print(f"Connection error: {e}")
         sys.exit(1)
 
-def submit_pipeline(file_name, url, username, password, namespace, pipeline_name):
-    print(f"DEBUG: KFP SDK {kfp.__version__} | Target: {url}")
+def submit_pipeline(file_name, url, username, password, namespace, pipeline_name, image_url):
+    print(f"VERSION: KFP SDK {kfp.__version__}")
     
     if not os.path.exists(file_name):
         print(f"Error: Compiled YAML file '{file_name}' not found.")
@@ -45,15 +44,14 @@ def submit_pipeline(file_name, url, username, password, namespace, pipeline_name
     client = get_authenticated_client(url, username, password, namespace)
     
     try:
-        # UPSERT LOGIC: Update existing or create a new pipeline definition
         print(f"\n--- Upserting Pipeline: {pipeline_name} ---")
         
-        # Safely retrieve the pipeline ID if it already exists
         pipeline_id = client.get_pipeline_id(pipeline_name)
         
-        # Generate a dynamic version name (e.g., v-171542123) to avoid conflicts on subsequent CI/CD runs
-        version_name = f"v-{int(time.time())}" 
+        # Version naming logic: Image tag
+        version_name = image_url.split(":")[-1]
         
+            
         if pipeline_id:
             print(f"Found existing pipeline (ID: {pipeline_id}). Uploading new version ({version_name})...")
             client.upload_pipeline_version(
@@ -62,7 +60,7 @@ def submit_pipeline(file_name, url, username, password, namespace, pipeline_name
                 pipeline_id=pipeline_id
             )
         else:
-            print(f"Pipeline not found. Creating new pipeline: {pipeline_name}...")
+            print(f"Pipeline not found. Creating new pipeline: {pipeline_name} with version {version_name}...")
             client.upload_pipeline(
                 pipeline_package_path=file_name, 
                 pipeline_name=pipeline_name
@@ -80,16 +78,13 @@ def submit_pipeline(file_name, url, username, password, namespace, pipeline_name
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Upload and Submit KFP Pipeline")
     
-    # Required arguments
     parser.add_argument("--file", required=True, help="Path to the compiled YAML file")
     parser.add_argument("--url", required=True, help="Base URL of Kubeflow")
     parser.add_argument("--username", required=True, help="Dex Username")
     parser.add_argument("--password", required=True, help="Dex Password")
     parser.add_argument("--namespace", required=True, help="The Kubeflow user namespace")
     parser.add_argument("--pipeline-name", required=True, help="Name of the pipeline in UI")
-    
-    # Kept to ensure compatibility with deploy_pipeline.sh arguments, unused in Python
-    parser.add_argument("--image", required=False, help="Container image tag (optional, currently unused)")
+    parser.add_argument("--image", required=False, help="Container image tag (used for versioning)")
     
     args = parser.parse_args()
 
@@ -99,5 +94,6 @@ if __name__ == "__main__":
         username=args.username, 
         password=args.password,
         namespace=args.namespace,
-        pipeline_name=args.pipeline_name
+        pipeline_name=args.pipeline_name,
+        image_url=args.image
     )
