@@ -40,6 +40,7 @@ for FILE in $PIPELINES_TO_RUN; do
         --username "$KUBEFLOW_USERNAME" \
         --password "$KUBEFLOW_PASSWORD" \
         --pipeline-name "$PIPELINE_NAME" \
+        --image "$IMAGE_URL" \
         --namespace "kubeflow-user-example-com" # TODO: DYNAMIC USER NAMESPACE
         
     # 5. Cleanup: We remove the temporary files to keep the environment clean
