@@ -13,3 +13,12 @@ def train_model_op():
 @dsl.pipeline(name='pipeline-without-compiler-and-humaine-image')
 def my_pipeline(): 
     train_task = train_model_op()
+
+if __name__ == "__main__":
+    from kfp import compiler
+    import sys
+     
+    compiler.Compiler().compile(
+        pipeline_func=my_pipeline,
+        package_path='pipeline_temp.yaml'
+    )
