@@ -20,6 +20,7 @@ jobs:
     - name: Set image url
       id: set_image_url
       run: | 
+        # Make image url output for Deploy_Pipeline Job
         URL="ghcr.io/${{ github.repository }}:v1.0.${{(github.run_number)}}-${{github.sha}}"
         echo "IMAGE_URL=$URL" >> $GITHUB_ENV
         echo "image_url=$URL" >> $GITHUB_OUTPUT
@@ -56,7 +57,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Εγκαθιστούμε kfp και pyyaml για να μπορεί το script να κάνει edit το YAML
+          # Install kfp και pyyaml in order for the script to create YAML files
           pip install kfp==2.16.1 pyyaml 
 
       - name: Detect and Submit Changed Pipelines
@@ -66,10 +67,11 @@ jobs:
           KUBEFLOW_USERNAME: ${{ secrets.KUBEFLOW_USERNAME }}
           KUBEFLOW_PASSWORD: ${{ secrets.KUBEFLOW_PASSWORD }}
         run: |
-          # 1. Βρίσκουμε τα αλλαγμένα αρχεία
+          # 1. Find changed files based on Git
           PRE_COMMIT_SHA=${{ github.event.before }}
           SHA=${{ github.sha }}
-          
+
+          # If it is the first commit, use SHA = 0
           if [ -z "$PRE_COMMIT_SHA" ] || [ "$PRE_COMMIT_SHA" == "0000000000000000000000000000000000000000" ]; then
             CHANGED_FILES=$(git ls-files)
           else
@@ -81,6 +83,6 @@ jobs:
           
           if [ -z "$CHANGED_FILES" ]; then exit 0; fi
 
-          # 2. Τρέχουμε το script απευθείας στον runner
+          # 2. Run script on runner
           chmod +x scripts/deploy_pipeline.sh
           ./scripts/deploy_pipeline.sh
