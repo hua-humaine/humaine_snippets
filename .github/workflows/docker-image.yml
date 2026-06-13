@@ -27,11 +27,11 @@ jobs:
 
     - name: Generate strict requirements dynamically
       run: |
-        python -m pip install pip-tools
+        pip install uv
         
         # Create a "locked" file with the name requirements.txt.locked
         # in order for the original requirements.txt to remain unchanged in the Git repository
-        pip-compile --upgrade-package numpy --resolver=backtracking --generate-hashes requirements.txt -o requirements.txt.locked
+        uv pip compile requirements.txt -o requirements.txt.locked
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
