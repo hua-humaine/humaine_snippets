@@ -13,7 +13,7 @@ shap
 xgboost
 pycaret
 scikit-learn
-kfp>=1.8.0,<2.0.0
+kfp
 jupyter
 jupyterlab
 ipykernel
