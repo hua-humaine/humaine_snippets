@@ -29,14 +29,9 @@ jobs:
       run: |
         python -m pip install pip-tools
         
-        # 1. Rename the file temporarily in the runner
-        mv requirements.txt requirements.in
-        
-        # 2. The pip-tools reads the .in file and generates the new, strict .txt file for the Docker image!
-        pip-compile requirements.in -o requirements.txt
-        
-        # Optional: Print the file to logs so you can see which versions were selected
-        # cat requirements.txt
+        # Create a "locked" file with the name requirements.txt.locked
+        # in order for the original requirements.txt to remain unchanged in the Git repository
+        pip-compile --resolver=backtracking --generate-hashes requirements.txt -o requirements.txt.locked
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

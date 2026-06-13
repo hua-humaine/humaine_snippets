@@ -15,8 +15,8 @@ RUN groupadd -g 1000 jovyan && \
 WORKDIR /home/jovyan
 
 # 4.Installing dependencies with PIP
-COPY --chown=jovyan:jovyan requirements.txt .
-RUN  pip install --no-cache-dir -r requirements.txt
+COPY --chown=jovyan:jovyan requirements.txt.locked .
+RUN pip install --no-cache-dir -r requirements.txt.locked
 
 # 5. Copying sources with right permissions
 COPY --chown=jovyan:jovyan scripts/ ./scripts/
