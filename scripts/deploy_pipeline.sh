@@ -12,30 +12,40 @@ fi
 for FILE in $PIPELINES_TO_RUN; do
     echo "Processing changed pipeline: $FILE"
     
-    # 1. Κάνουμε export το image ώστε να το "δει" το Python script (os.environ.get)
-    export IMAGE_URL="$IMAGE_URL"
+    # 1. Image Injection: Creation of temporary Python file with the injected image
+    TEMP_PY_FILE="${FILE}_temp_injected.py"
+    echo "Injecting image $IMAGE_URL into Python AST (respecting humaineImage flag)..."
+    python scripts/inject_image.py "$FILE" "$TEMP_PY_FILE" "$IMAGE_URL"
     
-    # 2. Compile: Ο compiler πλέον θα φτιάξει το YAML ΜΕ ΤΟ ΣΩΣΤΟ IMAGE κατευθείαν!
-    python $FILE
-    echo "Successfully compiled YAML natively with image $IMAGE_URL"
+    # 2. Compile: We check and run compilation on the temporary file
+    if python scripts/check_compile.py "$TEMP_PY_FILE"; then
+        echo "Detected native compile() call. Running directly..."
+        python "$TEMP_PY_FILE"
+    else
+        echo "No compile logic found. Compiling dynamically via kfp CLI..."
+        kfp pipeline compile --py "$TEMP_PY_FILE" --function pipeline --output pipeline_temp.yaml
+    fi
     
-    # 3. Dynamic Name Extraction (Αυτό το κρατάμε για να ξέρουμε ποιο pipeline να κάνουμε update)
+    echo "Successfully generated pipeline_temp.yaml"
+    
+    # 3. Dynamic Name Extraction: We read the pipeline name from the generated YAML
     PIPELINE_NAME=$(python -c "import yaml; print(yaml.safe_load(open('pipeline_temp.yaml'))['pipelineInfo']['name'])")
     echo "Detected pipeline name from YAML: $PIPELINE_NAME"
     
-    # 4. Submit: Στέλνουμε στο Kubeflow
+    # 4. Submit: We submit the YAML to Kubeflow
     echo "Submitting pipeline as: $PIPELINE_NAME"
     python scripts/submit_to_kubeflow.py  \
         --file pipeline_temp.yaml \
         --url "$KUBEFLOW_URL" \
-        --image "$IMAGE_URL" \
         --username "$KUBEFLOW_USERNAME" \
         --password "$KUBEFLOW_PASSWORD" \
         --pipeline-name "$PIPELINE_NAME" \
-        --namespace "kubeflow-user-example-com"  # TODO: Dynamically get user namespace
-
+        --namespace "kubeflow-user-example-com" # TODO: DYNAMIC USER NAMESPACE
         
-    # 5. Καθαρισμός
+    # 5. Cleanup: We remove the temporary files to keep the environment clean
     rm -f pipeline_temp.yaml
+    rm -f "$TEMP_PY_FILE"
+    
     echo "Finished processing $FILE"
+    echo "-----------------------------------"
 done
