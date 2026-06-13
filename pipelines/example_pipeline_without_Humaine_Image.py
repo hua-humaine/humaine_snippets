@@ -10,7 +10,7 @@ def train_model_op():
     # ... code ...
     print("Training component running...")
 
-@dsl.pipeline(name='pipeline-without-compiler-and-humaine-image')
+@dsl.pipeline(name='pipeline-without-humaine-image')
 def my_pipeline(): 
     train_task = train_model_op()
 
